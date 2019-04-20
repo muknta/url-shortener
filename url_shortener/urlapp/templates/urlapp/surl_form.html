@@ -1,20 +1,9 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-        <meta charset="UTF-8">
-        <title>main</title>
-</head>
-<body>
-        <div id="content">
-                <form id="form-url" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input id="gen-btn" type="submit" value="Shorten">
-
-                        <div id="result">sdfkh</div></form>
-        </div>
-    
-        <script src="{% static 'urlapp/main.js' %}"></script>
-</body>
-</html>
+{% extends 'urlapp/base.html' %}
+{% block content %}
+    <form id="form-url" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input id="gen-btn" type="submit" value="Shorten">
+        <div id="result">sdfkh</div>
+    </form>
+{% endblock content %}

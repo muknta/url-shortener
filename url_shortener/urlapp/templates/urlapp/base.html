@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <title>main</title>
+</head>
+<body>
+        <div id="content">
+                {% block content %}
+                {% endblock content %}
+        </div>
+    
+        <script src="{% static 'urlapp/main.js' %}"></script>
+</body>
+</html>
+
