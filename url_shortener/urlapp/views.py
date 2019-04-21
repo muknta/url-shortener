@@ -18,7 +18,6 @@ def shorten_url(request):
      
             response_data = {}
             response_data['url'] = f"{request.get_host()}/{short_url}"
-            print(response_data['url'])
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         return HttpResponse(json.dumps({"error": "empty link"}),
              content_type="application/json")

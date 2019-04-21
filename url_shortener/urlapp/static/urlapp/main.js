@@ -20,7 +20,8 @@
 
 
 $(function() {
-  $('#submit-btn').click(function() {
+  $('#url-form').on('submit', function(event){
+    event.preventDefault();
     if (isUrl($('#given-url').val())) {
       $.ajax({
         type: "POST",
