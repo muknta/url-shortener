@@ -1,9 +1,0 @@
-{% extends 'urlapp/base.html' %}
-{% block content %}
-    <form id="form-url" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input id="gen-btn" type="submit" value="Shorten">
-        <div id="result">sdfkh</div>
-    </form>
-{% endblock content %}

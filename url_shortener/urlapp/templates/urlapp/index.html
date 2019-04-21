@@ -1,0 +1,7 @@
+{% extends 'urlapp/base.html' %}
+{% block content %}
+    <input id="given-url" name="given-url" type="text" placeholder="example.com">
+    {% csrf_token %}
+    <input id="submit-btn" type="button" value="Shorten">
+    <span id="result">Here will be your link ;)</span>
+{% endblock content %}
