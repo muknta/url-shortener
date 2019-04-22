@@ -1,0 +1,19 @@
+{% extends 'urlapp/base.html' %}
+{% block content %}
+
+{% for surl in surls %}
+    <div id="surl-{{surl.pk}}" class="full-surl">
+            <div class="short">Short link --
+                    <a href="{{request.scheme}}://{{request.get_host}}/{{surl.short_url}}">
+                            {{request.get_host}}/{{surl.short_url}}
+                    </a></div>
+        <div class="long">Original link -- 
+                    <a href="{{ surl.given_url }}">
+                            {{ surl.given_url }}</a></div>
+        <div class="cr_date">Last visit time -- {{ surl.creat_date }}</div>
+        <div class="visit">Visit counter -- {{ surl.visit_count }}</div>
+    </div>        
+{% endfor %}
+
+{% endblock content %}
+

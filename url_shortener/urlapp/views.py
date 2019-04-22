@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from urlapp.models import Surl
 from django.http import JsonResponse
+from django.views.generic import ListView
 from string import digits, ascii_letters
 import random
 
@@ -20,7 +23,7 @@ def shorten_url(request):
         surl.save()
 
         response_data = {}
-        response_data['url'] = f"{request.get_host()}/{short_url}"
+        response_data['url'] = f"{request.scheme}://{request.get_host()}/{short_url}"
         return JsonResponse(response_data)
     return redirect("index")
  
@@ -39,4 +42,37 @@ def redirect_to_long(request, short_url):
     surl.visit_count += 1
     surl.save()
     return redirect(surl.given_url)
+
+
+def nobodys_surls(request):
+    context = {'surls': Surl.objects.filter(author=None)}
+    return render(request, "urlapp/surls.html", context, {'title': 'Nobody\'s urls'})
+
+@login_required
+def user_surls(request):
+    context = {'surls': Surl.objects.filter(author=request.user)}
+    return render(request, "urlapp/surls.html", context, {'title': f'{request.user.username}\'s urls'})
+
+
+class NobodysSurlListView(ListView):
+    model = Surl
+    template_name = "urlapp/surls.html"
+    context_object_name = "surls"
+
+    def get_queryset(self):
+        context = Surl.objects.filter(
+                author=None).order_by('-visit_count', '-creat_date')
+        return context
+
+
+class UserSurlListView(LoginRequiredMixin, ListView):
+    model = Surl
+    template_name = "urlapp/surls.html"
+    context_object_name = "surls"
+
+    def get_queryset(self):
+        context = Surl.objects.filter(
+                author=self.request.user).order_by('-visit_count', '-creat_date')
+        return context
+    
 
