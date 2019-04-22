@@ -1,9 +1,11 @@
 {% extends 'urlapp/base.html' %}
 {% block content %}
+<div id="url-content">
     <form action="" id="url-form">
     <input id="given-url" name="given-url" type="text" placeholder="http://example.com">
     {% csrf_token %}
-    <input id="submit-btn" type="submit" value="Shorten">
-    <span id="result">***dream-link***</span>
+    <input id="submit-btn" class="btn btn-outline-dark" type="submit" value="Shorten">
+    <span id="result">** dream link **</span>
     </form>
+</div>
 {% endblock content %}

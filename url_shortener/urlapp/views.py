@@ -44,16 +44,6 @@ def redirect_to_long(request, short_url):
     return redirect(surl.given_url)
 
 
-def nobodys_surls(request):
-    context = {'surls': Surl.objects.filter(author=None)}
-    return render(request, "urlapp/surls.html", context, {'title': 'Nobody\'s urls'})
-
-@login_required
-def user_surls(request):
-    context = {'surls': Surl.objects.filter(author=request.user)}
-    return render(request, "urlapp/surls.html", context, {'title': f'{request.user.username}\'s urls'})
-
-
 class NobodysSurlListView(ListView):
     model = Surl
     template_name = "urlapp/surls.html"

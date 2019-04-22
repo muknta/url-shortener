@@ -1,19 +1,34 @@
 {% extends 'urlapp/base.html' %}
-{% block content %}
+{% load static %}
 
+{% block title %}
+<title>Urls</title>
+{% endblock title %}
+
+{% block css-includes %}
+<link rel="stylesheet" href="{% static 'urlapp/surls.css' %}">
+{% endblock css-includes %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Short link</th>
+        <th>Original link</th>
+        <th>Last visit time</th>
+        <th>Visit counter</th>
+    </tr>
 {% for surl in surls %}
-    <div id="surl-{{surl.pk}}" class="full-surl">
-            <div class="short">Short link --
-                    <a href="{{request.scheme}}://{{request.get_host}}/{{surl.short_url}}">
-                            {{request.get_host}}/{{surl.short_url}}
-                    </a></div>
-        <div class="long">Original link -- 
-                    <a href="{{ surl.given_url }}">
-                            {{ surl.given_url }}</a></div>
-        <div class="cr_date">Last visit time -- {{ surl.creat_date }}</div>
-        <div class="visit">Visit counter -- {{ surl.visit_count }}</div>
-    </div>        
+    <tr>
+        <th><a href="{{request.scheme}}://{{request.get_host}}/{{surl.short_url}}">
+                    {{request.get_host}}/{{surl.short_url}}
+                </a></th>
+        <th><a href="{{ surl.given_url }}">
+                    {{ surl.given_url }}</a></th>
+        <th>{{ surl.creat_date }}</th>
+        <th>{{ surl.visit_count }}</th>
+    </tr>
 {% endfor %}
+</table>
 
 {% endblock content %}
 

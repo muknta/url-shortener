@@ -15,12 +15,12 @@
 		<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			<fieldset class="form-group">
-				<legend class="border-bottom mb-4">Информация Профиля</legend>
+				<legend class="border-bottom mb-4">Profile Info</legend>
 				{{ u_form|crispy }}
 			</fieldset>
 			<div class="form-group buttons">
-				<button class="btn" type="submit">Изменить</button>
-				<a id="logout" class="btn btn-danger" href="{% url 'logout' %}">Выйти</a>
+				<button class="btn" type="submit">Change Info</button>
+				<a id="logout" class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
 			</div>
 		</form>
 	</div>

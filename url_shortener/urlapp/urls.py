@@ -5,7 +5,7 @@ from .views import (
         UserSurlListView
     )
 
-
+app_name = 'urlapp'
 urlpatterns = [
     path('', views.index, name='index'),
     path('shorten-url/', views.shorten_url, name='shorten-url'),

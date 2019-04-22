@@ -5,13 +5,13 @@
 		<form method="POST">
 			{% csrf_token %}
 			<fieldset class="form-group">
-				<legend class="border-bottom mb-4">log in</legend>
+				<legend class="border-bottom mb-4">Log in</legend>
 				{{ form|crispy }}
 			</fieldset>
 			<div class="form-group">
-				<button class="btn" type="submit">Войти</button>
+				<button class="btn" type="submit">Sign in</button>
 				<small class="tex-muted ml-2">
-					<a href="{% url 'password_reset' %}">Забыли пароль?</a>
+					<a href="{% url 'password_reset' %}">Forgot a password?</a>
 				</small>
 			</div>
 		</form>
