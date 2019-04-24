@@ -64,5 +64,4 @@ class UserSurlListView(LoginRequiredMixin, ListView):
         context = Surl.objects.filter(
                 author=self.request.user).order_by('-visit_count', '-creat_date')
         return context
-    
 
