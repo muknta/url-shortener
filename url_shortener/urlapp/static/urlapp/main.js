@@ -1,22 +1,6 @@
-//var givenUrl = document.getElementById("given-url");
-//var submitBtn = document.getElementById("submit-btn");
-//var result = document.getElementById("result");
-//submitBtn.addEventListener("click", function(e) {
-//  var xhr = new XMLHttpRequest();
-//  xhr.open('POST', 'shorten-url', true);
-//  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-//  xhr.onload = function() {
-//    if (xhr.status >= 200 && xhr.status < 400) {
-//      var resp = xhr.responseText;
-//      alert(JSON.parse(resp)["data"]);
-//    } else {
-//      alert("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalert"); 
-//    }
-//  };
-//  xhr.send(givenUrl.value);
-//});
- 
-
+function copyToClipboard(text) {
+    prompt("Copy to clipboard: Ctrl+C, Enter", text);
+};
 
 
 $(function() {

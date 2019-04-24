@@ -1,6 +1,17 @@
+{% extends "urlapp/base.html" %}
+{% load static %}
+
+{% block title %}
+<title>Log out</title>
+{% endblock title %}
+
+{% block css-includes %}
+<link rel="stylesheet" href="{% static 'urlapp/users.css' %}">
+{% endblock css-includes %}
+
 {% block content %}
 	<h2>you have been logged out</h2>
-	<div class="border-top pt-3">
+	<div class="content-section border-top pt-3">
 		<small class="text-muted">
 			already? <a href="{% url 'login' %}" class="ml-2">fck-dck</a>
 		</small>

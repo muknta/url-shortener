@@ -12,6 +12,7 @@
 {% block content %}
 <table>
     <tr>
+        <th>number</th>
         <th>Short link</th>
         <th>Original link</th>
         <th>Last visit time</th>
@@ -19,6 +20,7 @@
     </tr>
 {% for surl in surls %}
     <tr>
+        <th>{{ forloop.counter }}</th>
         <th><a href="{{request.scheme}}://{{request.get_host}}/{{surl.short_url}}">
                     {{request.get_host}}/{{surl.short_url}}
                 </a></th>

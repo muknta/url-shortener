@@ -2,32 +2,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        {% if title %}
-        <title>{{title}}</title>
-        {% else %}
-        <title>main</title>
-        {% endif %}
+    <meta charset="UTF-8">
+    {% block title %}{% endblock title %}
+    <link rel="shortcut icon" href="{% static 'urlapp/img/icon.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" href="{% static 'urlapp/main.css' %}">
 	{% block css-includes %}{% endblock css-includes %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id="navbar">
-  <a class="navbar-brand" href="{% url 'urlapp:index' %}">UkrotitelSsylok</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-              <a class="nav-link" href="{% url 'urlapp:nobodys-surls' %}">Nobody's urls</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'urlapp:user-surls' %}">My urls</a>
-      </li>
-    </ul>
+<div id="page-container">
+    <div id="content-wrap">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id="navbar">
+        <a class="navbar-brand" href="{% url 'urlapp:index' %}">UkrotitelSsylok</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'urlapp:nobodys-surls' %}">Nobody's urls</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'urlapp:user-surls' %}">My urls</a>
+            </li>
+        </ul>
           <ul class="nav navbar-nav navbar-right">
 			<li class="right dropdown">
 				{% if user.is_authenticated %}
@@ -78,6 +79,17 @@
                 {% block content %}
                 {% endblock content %}
         </div>
+        <div id="footer">
+            <div class="headline">Inspired by <a href="https://evo.company/">EVO</a>. Created by heknt.</div>
+            <div class="images">
+                <a href="https://github.com/heknt/">
+                    <span class="icons"><i class="fab fa-github fa-3px"></i></span></a>
+                <a href="https://www.linkedin.com/in/nikita-sadchenko-164a49182/">
+                    <span class="icons"><i class="fab fa-linkedin"></i></a></span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

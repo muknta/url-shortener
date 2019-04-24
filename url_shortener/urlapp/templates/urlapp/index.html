@@ -1,10 +1,20 @@
 {% extends 'urlapp/base.html' %}
+
+{% block title %}
+<title>UkrotitelSsylok</title>
+{% endblock title %}
+
 {% block content %}
 <div id="url-content">
     <form action="" id="url-form">
     <input id="given-url" name="given-url" type="text" placeholder="http://example.com">
     {% csrf_token %}
-    <input id="submit-btn" class="btn btn-outline-dark" type="submit" value="Shorten">
+    <div class="buttons">
+        <input id="submit-btn" class="btn btn-outline-dark" type="submit" value="Shorten">
+        <input id="copy-btn" class="btn btn-outline-primary" type="button" value="Copy"
+                onclick="copyToClipboard(document.getElementById('result').innerHTML)">
+                <!-- sry, addEventListener doesn't want to work with prompt :c -->
+    </div>
     <span id="result">** dream link **</span>
     </form>
 </div>

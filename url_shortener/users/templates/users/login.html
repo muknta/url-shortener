@@ -1,7 +1,17 @@
 {% extends "urlapp/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
+
+{% block title %}
+<title>Log in</title>
+{% endblock title %}
+
+{% block css-includes %}
+<link rel="stylesheet" href="{% static 'urlapp/users.css' %}">
+{% endblock css-includes %}
+
 {% block content %}
-	<div class="content-section" style="margin:50px 35%">
+	<div class="content-section">
 		<form method="POST">
 			{% csrf_token %}
 			<fieldset class="form-group">
