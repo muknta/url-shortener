@@ -8,16 +8,21 @@
 	box-sizing: border-box;
 }
 
+a {
+	color: darkblue;
+}
 a, a:hover {
 	text-decoration: none;
 }
 a:hover {
 	cursor: pointer;
+	color: darkred;
 }
 
 *:focus {
 	outline: none;
 }
+
 
 body {
 	background-color: #9999ff;
@@ -33,6 +38,14 @@ body {
 
 #content-wrap {
     padding-bottom: 3.7rem;
+}
+
+.login-alert {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: darkorange;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 #url-content {
@@ -99,13 +112,6 @@ body {
 #footer > * {
     display: inline-block;
     padding-right: 10px;
-}
-
-#footer a {
-	color: darkblue;
-}
-#footer a:hover {
-	color: darkred;
 }
 
 #footer .headline {

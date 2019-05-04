@@ -10,6 +10,11 @@
 {% endblock css-includes %}
 
 {% block content %}
+{% if not user.is_authenticated %}
+    <div class="login-alert">
+        Log in to others couldn't see your urls.
+    </div>
+{% endif %}
 <table>
     <tr>
         <th>number</th>
