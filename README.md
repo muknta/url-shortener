@@ -1,17 +1,18 @@
 # url-shortener (UkrotitelSsylok)
-<i>release - https://theshortesturlontheinternet.herokuapp.com/</i>
+*[RELEASE](https://theshortesturlontheinternet.herokuapp.com/)*
 
-Creation of this project was inspired by <a href="https://evo.company/">EVO</a>'s task.
+Creation of this project was inspired by [EVO](https://evo.company/)'s task.
 
-<h2>Usage</h2>
+## Usage
 This site designed to ease your storing and sharing too long links for better readability.
-<br>(need a replacement for a dead goo.gl)
-<br>There are abilities to register, login, restore password by email, see own and "nobody's" urls (unregistered users).
 
-<h2>Technologies</h2>
-<ul>
-  <li>Django 2.2 (Python 3.7.1)</li>
-  <li>PostgreSQL</li>
-  <li>Javascript</li>
-  <li>AJAX (Jquery :c)</li>
-</ul>
+(need a replacement for a dead goo.gl)
+
+There are abilities to register, login, restore password by email, see own and "nobody's" urls (unregistered users).
+
+## Technologies
+* Django 2.2 (Python 3.7.1)
+* PostgreSQL
+* Javascript
+* Bootstrap 4
+* AJAX (Jquery 3.3.1 :c)
