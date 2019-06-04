@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class Surl(models.Model):
     short_url = models.SlugField(max_length=6, primary_key=True)
-    given_url = models.URLField(max_length=300)
+    given_url = models.URLField(max_length=500)
     visit_count = models.IntegerField(default=0)
     creat_date = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, related_name='user',
