@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn url_shortener.wsgi:application --bind 0.0.0.0:8000"
+    container_name: url_shortener
+    volumes:
+      - .:/url_shortener
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db-1
+    environment:
+      - DATABASE_URL=postgres://heknt:1234@db-1:5432/django_url_shortener?sslmode=disable
+
+  db-1:
+    image: postgres:14.13
+    volumes:
+      - postgres_data2:/var/lib/postgresql/data/
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=heknt
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=django_url_shortener
+
+
+#  test-app:
+#    build: .
+#    image: python:3.9.6
+#    depends_on:
+#      - db-1
+#    command: bash -c "python /url_shortener/test_connection.py"
+#    volumes:
+#      - .:/url_shortener
+
+volumes:
+  postgres_data2:

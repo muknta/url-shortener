@@ -28,7 +28,7 @@ SECRET_KEY = 'a6a6wt_&+e7zi_cygsdf=u!&21f#08u#%pp8^u+)$@v3=f6u6-'
 #DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
 DEBUG = 'False'
 
-ALLOWED_HOSTS = ['theshortesturlontheinternet.herokuapp.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['theshortesturlontheinternet.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -83,9 +83,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'django_url_shortener',
-        'HOST': 'localhost',
-        'USER': 'url_user',
-        'PASSWORD': 'postgresfordjango',
+        'HOST': 'db-1',
+        'USER': 'heknt',
+        'PASSWORD': '1234',
+        'OPTIONS': {
+            'sslmode': 'disable',  # Disable SSL
+        },
     }
 }
 
@@ -143,5 +146,5 @@ EMAIL_HOST_USER = 'hekntatest@gmail.com'
 EMAIL_HOST_PASSWORD = '***'
 
 
-django_heroku.settings(locals())
+django_heroku.settings(locals(), logging=not DEBUG, databases=not DEBUG)
 
