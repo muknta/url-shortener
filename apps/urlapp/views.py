@@ -26,7 +26,7 @@ def shorten_url(request):
         response_data = {}
         response_data["url"] = f"{request.scheme}://{request.get_host()}/{short_url}"
         return JsonResponse(response_data)
-    return redirect("index")
+    return redirect("urlapp:index")
 
 
 def rand_N_symb(N):
