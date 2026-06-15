@@ -84,13 +84,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+_db_config = dj_database_url.config(
+    default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+)
+if _db_config.get("ENGINE") != "django.db.backends.sqlite3":
+    _db_config["CONN_MAX_AGE"] = 600
+    _db_config["CONN_HEALTH_CHECKS"] = True
+DATABASES = {"default": _db_config}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -132,11 +132,15 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+if not DEBUG:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("bootstrap4",)
@@ -149,11 +153,13 @@ LOGOUT_REDIRECT_URL = "urlapp:index"
 if os.environ.get("EMAIL_HOST"):
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = os.environ["EMAIL_HOST"]
-    EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+    EMAIL_PORT = int(os.environ.get("EMAIL_PORT") or 587)
     EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes")
     EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
     EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-    DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+    DEFAULT_FROM_EMAIL = (
+        os.environ.get("DEFAULT_FROM_EMAIL") or EMAIL_HOST_USER or "noreply@localhost"
+    )
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -170,6 +176,6 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     X_FRAME_OPTIONS = "DENY"
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "https://yourdomain.com").split(
-        ","
-    )
+    CSRF_TRUSTED_ORIGINS = [
+        o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
+    ]
