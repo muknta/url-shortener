@@ -1,0 +1,24 @@
+[project]
+name = "url-shortener"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [".venv", "migrations", "staticfiles"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "UP",       # pyupgrade
+    "B",        # flake8-bugbear
+    "DJ",       # flake8-django
+    "C4",       # flake8-comprehensions
+]
+ignore = ["E501"]  # line length handled by the formatter
+
+[tool.ruff.format]
+quote-style = "double"

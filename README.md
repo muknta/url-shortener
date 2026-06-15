@@ -1,4 +1,4 @@
-# url-shortener (UkrotitelSsylok)
+# url-shortener (UrlShortener)
 
 A Django URL shortener with user accounts, public/private link lists, and password reset via email.
 

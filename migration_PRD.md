@@ -1,6 +1,6 @@
 # PRD: Migrate Django URL Shortener to Python 3.12
 
-A 7-year-old Django 2.2 / Python 3.7 project ("UkrotitelSsylok") originally deployed on Heroku with PostgreSQL. The goal is to modernize it fully: run locally with Python 3.12, upgrade to Django 5.2 LTS, apply security best practices, and prepare for future deployment on a new domain/host.
+A 7-year-old Django 2.2 / Python 3.7 project ("UrlShortener") originally deployed on Heroku with PostgreSQL. The goal is to modernize it fully: run locally with Python 3.12, upgrade to Django 5.2 LTS, apply security best practices, and prepare for future deployment on a new domain/host.
 
 ## Project Summary
 

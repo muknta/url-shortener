@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class UrlappConfig(AppConfig):
-    name = 'apps.urlapp'
+    name = "apps.urlapp"

@@ -1,26 +1,26 @@
 {% extends 'urlapp/base.html' %}
 
 {% block title %}
-<title>UkrotitelSsylok</title>
+<title>UrlShortener</title>
 {% endblock title %}
 
 {% block content %}
 {% if not user.is_authenticated %}
-    <div class="login-alert">
-        Log in to others couldn't see your urls.
-    </div>
+<div class="login-alert">
+    Log in to others couldn't see your urls.
+</div>
 {% endif %}
 <div id="url-content">
     <form action="" id="url-form">
-    <input id="given-url" name="given-url" type="text" placeholder="http://example.com">
-    {% csrf_token %}
-    <div class="buttons">
-        <input id="submit-btn" class="btn btn-outline-dark" type="submit" value="Shorten">
-        <input id="copy-btn" class="btn btn-outline-primary" type="button" value="Copy"
+        <input id="given-url" name="given-url" type="text" placeholder="http://example.com">
+        {% csrf_token %}
+        <div class="buttons">
+            <input id="submit-btn" class="btn btn-outline-dark" type="submit" value="Shorten">
+            <input id="copy-btn" class="btn btn-outline-primary" type="button" value="Copy"
                 onclick="copyToClipboard(document.getElementById('result').innerHTML)">
-                <!-- sry, addEventListener doesn't want to work with prompt :c -->
-    </div>
-    <span id="result">** dream link **</span>
+            <!-- sry, addEventListener doesn't want to work with prompt :c -->
+        </div>
+        <span id="result">** dream link **</span>
     </form>
 </div>
 {% endblock content %}

@@ -1,104 +1,117 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    {% block title %}{% endblock title %}
-    <link rel="shortcut icon" href="{% static 'urlapp/img/icon.png' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<meta charset="UTF-8">
+	{% block title %}{% endblock title %}
+	<link rel="shortcut icon" href="{% static 'urlapp/img/icon.png' %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" href="{% static 'urlapp/main.css' %}">
 	{% block css-includes %}{% endblock css-includes %}
 </head>
+
 <body>
 
-<div id="page-container">
-    <div id="content-wrap">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id="navbar">
-        <a class="navbar-brand" href="{% url 'urlapp:index' %}">UkrotitelSsylok</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+	<div id="page-container">
+		<div id="content-wrap">
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id="navbar">
+				<a class="navbar-brand" href="{% url 'urlapp:index' %}">UrlShortener</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'urlapp:nobodys-surls' %}">Nobody's urls</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'urlapp:user-surls' %}">My urls</a>
-            </li>
-        </ul>
-          <ul class="nav navbar-nav navbar-right">
-			<li class="right dropdown">
-				{% if user.is_authenticated %}
-					<a href="{% url 'profile' %}" class="btn btn-outline-warning">Profile</a>
-				{% elif not user.is_authenticated and not '/login/' in request.get_full_path %}
-	                <button type="button" data-toggle="dropdown" class="btn btn-outline-warning">Log in</button>
-	                <ul class="dropdown-menu dropdown-menu-right mt-2">
-	                	<li class="px-3 py-2">
-	                    	<form method="POST" action="{% url 'login' %}" class="form">
-	                    		{% csrf_token %}
-	                            <div class="form-group">
-	                                <input type="text" name="username" autofocus="" class="textinput textInput form-control" required="" id="id_username" placeholder="Логин">
-	                            </div>
-	                            <div class="form-group">
-	                                <input type="password" name="password" class="textinput textInput form-control" required="" id="id_password" placeholder="Пароль">
-	                            </div>
-	                            <div class="form-group text-center">
-	                                <button type="submit" class="btn btn-success btn-block">Sign in</button>
-	                                <small><a href="{% url 'password_reset' %}">Forgot a password?</a></small>
-	                            </div>
-	                            <div class="form-group" style="margin-bottom:0">
-	                                <a href="{% url 'register' %}" class="btn btn-danger btn-block">Sign up</a>
-	                            </div>
-	                        </form>
-	                    </li>
-	                </ul>
-	            {% else %}
-	            	<a href="{% url 'register' %}" class="btn btn-outline-warning btn-block">Sign up</a>
-                {% endif %}
-            </li>
-          </ul>
-  </div>
-</nav>
-	{% if messages %}
-		<div class="row">
-			<div class="col-md-8">
-				{% if messages %}
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'urlapp:nobodys-surls' %}">Nobody's urls</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'urlapp:user-surls' %}">My urls</a>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="right dropdown">
+							{% if user.is_authenticated %}
+							<a href="{% url 'profile' %}" class="btn btn-outline-warning">Profile</a>
+							{% elif not user.is_authenticated and not '/login/' in request.get_full_path %}
+							<button type="button" data-toggle="dropdown" class="btn btn-outline-warning">Log in</button>
+							<ul class="dropdown-menu dropdown-menu-right mt-2">
+								<li class="px-3 py-2">
+									<form method="POST" action="{% url 'login' %}" class="form">
+										{% csrf_token %}
+										<div class="form-group">
+											<input type="text" name="username" autofocus=""
+												class="textinput textInput form-control" required="" id="id_username"
+												placeholder="Username">
+										</div>
+										<div class="form-group">
+											<input type="password" name="password"
+												class="textinput textInput form-control" required="" id="id_password"
+												placeholder="Password">
+										</div>
+										<div class="form-group text-center">
+											<button type="submit" class="btn btn-success btn-block">Sign in</button>
+											<small><a href="{% url 'password_reset' %}">Forgot a password?</a></small>
+										</div>
+										<div class="form-group" style="margin-bottom:0">
+											<a href="{% url 'register' %}" class="btn btn-danger btn-block">Sign up</a>
+										</div>
+									</form>
+								</li>
+							</ul>
+							{% else %}
+							<a href="{% url 'register' %}" class="btn btn-outline-warning btn-block">Sign up</a>
+							{% endif %}
+						</li>
+					</ul>
+				</div>
+			</nav>
+			{% if messages %}
+			<div class="row">
+				<div class="col-md-8">
+					{% if messages %}
 					{% for message in messages %}
-						<div class="alert alert-{{ message.tags }}">
-							{{ message }}
-						</div>
+					<div class="alert alert-{{ message.tags }}">
+						{{ message }}
+					</div>
 					{% endfor %}
-				{% endif %}
+					{% endif %}
+				</div>
+			</div>
+			{% endif %}
+
+			<div id="content">
+				{% block content %}
+				{% endblock content %}
+			</div>
+
+			<div id="footer">
+				<div class="headline">Inspired by <a href="https://evo.company/">EVO</a>. Created by heknt.</div>
+				<div class="images">
+					<a href="https://github.com/heknt/">
+						<span class="icons"><i class="fab fa-github fa-3px"></i></span></a>
+					<a href="https://www.linkedin.com/in/nikita-sadchenko-164a49182/">
+						<span class="icons"><i class="fab fa-linkedin"></i></a></span>
+				</div>
 			</div>
 		</div>
-	{% endif %}
+	</div>
 
-        <div id="content">
-            {% block content %}
-            {% endblock content %}
-        </div>
-        
-        <div id="footer">
-            <div class="headline">Inspired by <a href="https://evo.company/">EVO</a>. Created by heknt.</div>
-            <div class="images">
-                <a href="https://github.com/heknt/">
-                    <span class="icons"><i class="fab fa-github fa-3px"></i></span></a>
-                <a href="https://www.linkedin.com/in/nikita-sadchenko-164a49182/">
-                    <span class="icons"><i class="fab fa-linkedin"></i></a></span>
-            </div>
-        </div>
-    </div>
-</div>
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+		crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		crossorigin="anonymous"></script>
+	<script src="{% static 'urlapp/main.js' %}"></script>
+	{% block js-includes %}{% endblock js-includes %}
 
-<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script src="{% static 'urlapp/main.js' %}"></script>
-{% block js-includes %}{% endblock js-includes %}
-    
 </body>
-</html>
 
+</html>
