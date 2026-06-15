@@ -32,9 +32,9 @@ class AuthTests(TestCase):
 
     def test_login_redirects_to_index(self):
         resp = self.client.post(reverse("login"), {"username": "bob", "password": "pw12345!"})
-        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse("urlapp:index"), fetch_redirect_response=False)
 
     def test_logout_redirects(self):
         self.client.login(username="bob", password="pw12345!")
         resp = self.client.post(reverse("logout"))
-        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse("urlapp:index"), fetch_redirect_response=False)

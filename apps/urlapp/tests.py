@@ -34,6 +34,7 @@ class ShortenFlowTests(TestCase):
         self.assertIn("url", data)
         short = data["url"].rstrip("/").split("/")[-1]
         self.assertTrue(Surl.objects.filter(pk=short).exists())
+        self.assertEqual(Surl.objects.count(), 1)
 
     def test_shorten_rejects_empty_url(self):
         resp = self.client.post(reverse("urlapp:shorten-url"), {"url": ""})
@@ -48,10 +49,12 @@ class ShortenFlowTests(TestCase):
     def test_shorten_rejects_ftp_scheme(self):
         resp = self.client.post(reverse("urlapp:shorten-url"), {"url": "ftp://example.com"})
         self.assertEqual(resp.status_code, 400)
+        self.assertIn("error", resp.json())
 
     def test_anonymous_has_no_author(self):
         self.client.post(reverse("urlapp:shorten-url"), {"url": "https://example.com"})
-        self.assertIsNone(Surl.objects.first().author)
+        surl = Surl.objects.get(given_url="https://example.com")
+        self.assertIsNone(surl.author)
 
     def test_authenticated_sets_author(self):
         User.objects.create_user("bob", password="pw12345!")
@@ -85,8 +88,11 @@ class ListViewTests(TestCase):
 
     def test_user_list_requires_login(self):
         resp = self.client.get(reverse("urlapp:user-surls"))
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("/login/", resp["Location"])
+        self.assertRedirects(
+            resp,
+            f"{reverse('login')}?next={reverse('urlapp:user-surls')}",
+            fetch_redirect_response=False,
+        )
 
     def test_user_list_shows_only_own_urls(self):
         other = User.objects.create_user("alice", password="pw12345!")
