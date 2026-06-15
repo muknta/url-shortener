@@ -20,6 +20,7 @@ services:
     environment:
       SECRET_KEY: localdev-insecure-key
       DEBUG: "False"
+      SECURE_SSL_REDIRECT: "False"
       ALLOWED_HOSTS: localhost,127.0.0.1
       DATABASE_URL: postgres://urlshortener:localdev@db:5432/urlshortener
       CSRF_TRUSTED_ORIGINS: http://localhost:8000

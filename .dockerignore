@@ -10,3 +10,4 @@ docs/
 *.md
 .pre-commit-config.yaml
 .claude/
+requirements-dev.txt
