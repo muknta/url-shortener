@@ -1,0 +1,12 @@
+.venv/
+.git/
+db.sqlite3
+staticfiles/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+docs/
+*.md
+.pre-commit-config.yaml
+.claude/
