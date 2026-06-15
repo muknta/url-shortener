@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [master]
   pull_request:
 
 jobs:
@@ -35,7 +36,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: "requirements-dev.txt"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
@@ -49,7 +52,7 @@ jobs:
         run: python manage.py test apps
 
       - name: Deployment check
-        run: python manage.py check --deploy
+        run: python manage.py check --deploy --fail-level WARNING
         env:
           DEBUG: "False"
           ALLOWED_HOSTS: example.com
