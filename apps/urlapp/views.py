@@ -4,6 +4,7 @@ from string import ascii_letters, digits
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.db import IntegrityError
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,7 +32,12 @@ def shorten_url(request):
             surl = Surl(author=request.user, given_url=url, short_url=short_url)
         else:
             surl = Surl(given_url=url, short_url=short_url)
-        surl.save()
+        try:
+            surl.save()
+        except IntegrityError:
+            short_url = rand_N_symb(6)
+            surl.short_url = short_url
+            surl.save()
 
         response_data = {}
         response_data["url"] = f"{request.scheme}://{request.get_host()}/{short_url}"

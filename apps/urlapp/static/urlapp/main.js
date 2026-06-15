@@ -15,8 +15,9 @@ $(function() {
           'csrfmiddlewaretoken' : $("input[name=csrfmiddlewaretoken]").val()
         },
         success: returnSuccess,
-        failure: function() {
-          alert("errMsg");
+        error: function(jqXHR) {
+          var msg = (jqXHR.responseJSON && jqXHR.responseJSON.error) ? jqXHR.responseJSON.error : "Something went wrong";
+          alert(msg);
         },
         dataType: 'json'
       });

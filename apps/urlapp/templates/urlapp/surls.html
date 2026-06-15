@@ -20,7 +20,7 @@
         <th>number</th>
         <th>Short link</th>
         <th>Original link</th>
-        <th>Last visit time</th>
+        <th>Created</th>
         <th>Visit counter</th>
     </tr>
 {% for surl in surls %}
@@ -31,7 +31,7 @@
                 </a></th>
         <th><a href="{{ surl.given_url }}">
                     {{ surl.given_url }}</a></th>
-        <th>{{ surl.creat_date }}</th>
+        <th>{{ surl.created_date }}</th>
         <th>{{ surl.visit_count }}</th>
     </tr>
 {% endfor %}

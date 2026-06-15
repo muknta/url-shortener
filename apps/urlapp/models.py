@@ -1,10 +1,13 @@
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
 from django.db import models
 
 
 class Surl(models.Model):
     short_url = models.SlugField(max_length=6, primary_key=True)
-    given_url = models.URLField(max_length=500)
+    given_url = models.URLField(
+        max_length=500, validators=[URLValidator(schemes=["http", "https"])]
+    )
     visit_count = models.IntegerField(default=0)
     created_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(
