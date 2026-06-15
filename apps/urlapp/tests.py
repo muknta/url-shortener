@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from datetime import date
-from urlapp.models import Surl
+from apps.urlapp.models import Surl
 
 
 class SurlTestCase(TestCase):

@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.contrib.auth import views as auth_views
-from users import views as user_views
+from apps.users import views as user_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,5 +41,5 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(
             template_name='users/password_reset_complete.html'),
         name='password_reset_complete'),
-    path('', include("urlapp.urls")),
+    path('', include("apps.urlapp.urls")),
 ]

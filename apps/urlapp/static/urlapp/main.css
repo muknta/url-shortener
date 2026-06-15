@@ -1,0 +1,139 @@
+* {
+	list-style-type: none;
+	padding:0;
+	margin:0;
+}
+
+*, ::after, ::before {
+	box-sizing: border-box;
+}
+
+a {
+	color: darkblue;
+}
+a, a:hover {
+	text-decoration: none;
+}
+a:hover {
+	cursor: pointer;
+	color: darkred;
+}
+
+*:focus {
+	outline: none;
+}
+
+
+body {
+	background-color: #9999ff;
+	font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+}
+
+#page-container {
+    position: relative;
+    min-height:100vh;
+}
+
+#content-wrap {
+    padding-bottom: 3.7rem;
+}
+
+.login-alert {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: darkorange;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+#url-content {
+    height: 300px;
+    position: absolute;
+    top:0;
+    bottom:0;
+    right:0;
+    left:0;
+    margin: auto;
+}
+
+#url-content form {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+#url-content form > * {
+    text-align: center;
+    margin: 10px auto;
+}
+#url-content form input[type="text"], 
+#url-content form span {
+    font-size:1.3em;
+}
+
+#url-content form input[type="text"] {
+    width: 550px;
+    height: 60px;
+    border-radius: 40px;
+}
+
+#url-content form input[type="submit"] {
+    width: 80px;
+}
+#url-content form span { 
+    height: 70px;
+    width: 530px;
+    background-color: brown;
+    color: white;
+    line-height: 70px;
+    -webkit-box-shadow: 0px 0px 44px 0px rgba(50, 50, 50, 1);
+    -moz-box-shadow: 0px 0px 44px 0px rgba(50, 50, 50, 1);
+    box-shadow: 0px 0px 44px 0px rgba(50, 50, 50, 1);
+}
+
+#url-content .buttons {
+    display: inline-block;
+}
+
+
+#footer {
+	background-color: #8C611C;
+    position: absolute;
+    width: 100%;
+    bottom:0;
+    height: 3.5rem;
+    text-align: center;
+    -webkit-box-shadow: 0px -3px 5px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow: 0px -3px 5px 0px rgba(50, 50, 50, 0.75);
+    box-shadow: 0px -3px 5px 0px rgba(50, 50, 50, 0.75);
+}
+
+#footer > * {
+    display: inline-block;
+    padding-right: 10px;
+}
+
+#footer .headline {
+	font-size: 1.05rem;
+}
+
+#footer .icons {
+    font-size: 1.4rem;
+    padding: 3px;
+}
+#footer .headline,
+#footer .icons {
+    line-height: 3.5rem;
+}
+
+
+@media screen and (max-width: 800px) {
+	#footer .headline {
+		font-size: 1rem;
+	}
+	#footer .icons {
+		font-size: 1.2rem;
+	}
+}
+

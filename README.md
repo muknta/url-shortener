@@ -27,16 +27,16 @@ source .venv/bin/activate
 ### 2. Install dependencies
 
 ```bash
-pip install -r url_shortener/requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 3. Create the `.env` file
 
 ```bash
-cp url_shortener/.env.example url_shortener/.env
+cp .env.example .env
 ```
 
-Edit `url_shortener/.env` and set a real secret key:
+Edit `.env` and set a real secret key:
 
 ```env
 SECRET_KEY=<random-50-char-string>
@@ -75,7 +75,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 
 ## Environment Variables
 
-All configuration is driven by `url_shortener/.env` (never committed to git).
+All configuration is driven by `.env` (never committed to git).
 
 | Variable | Dev default | Description |
 |---|---|---|
