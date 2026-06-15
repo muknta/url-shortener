@@ -2,6 +2,9 @@ import random
 from string import ascii_letters, digits
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView
@@ -15,7 +18,14 @@ def index(request):
 
 def shorten_url(request):
     if request.method == "POST":
-        url = request.POST.get("url", "")
+        url = request.POST.get("url", "").strip()
+        if not url:
+            return JsonResponse({"error": "URL is required"}, status=400)
+        validator = URLValidator(schemes=["http", "https"])
+        try:
+            validator(url)
+        except ValidationError:
+            return JsonResponse({"error": "Enter a valid http or https URL"}, status=400)
         short_url = rand_N_symb(6)
         if request.user.is_authenticated:
             surl = Surl(author=request.user, given_url=url, short_url=short_url)
@@ -42,8 +52,7 @@ def rand_N_symb(N):
 
 def redirect_to_long(request, short_url):
     surl = get_object_or_404(Surl, pk=short_url)
-    surl.visit_count += 1
-    surl.save()
+    Surl.objects.filter(pk=short_url).update(visit_count=F("visit_count") + 1)
     return redirect(surl.given_url)
 
 
@@ -53,7 +62,7 @@ class NobodysSurlListView(ListView):
     context_object_name = "surls"
 
     def get_queryset(self):
-        context = Surl.objects.filter(author=None).order_by("-visit_count", "-creat_date")
+        context = Surl.objects.filter(author=None).order_by("-visit_count", "-created_date")
         return context
 
 
@@ -64,6 +73,6 @@ class UserSurlListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         context = Surl.objects.filter(author=self.request.user).order_by(
-            "-visit_count", "-creat_date"
+            "-visit_count", "-created_date"
         )
         return context
