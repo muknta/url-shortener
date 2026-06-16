@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView
 
-from apps.metrics.models import record_click
+from apps.metrics.services import extract_request_metadata, record_click
 
 from .models import ShortLink
 
@@ -31,14 +31,10 @@ def shorten_url(request):
             return JsonResponse({"error": "Enter a valid http or https URL"}, status=400)
 
         code = rand_N_symb(6)
-        author = None
-        if request.user.is_authenticated:
-            try:
-                author = request.user.profile
-            except Exception:
-                author = None
+        author = request.user if request.user.is_authenticated else None
+        metadata = extract_request_metadata(request)
 
-        link = ShortLink(code=code, given_url=url, author=author)
+        link = ShortLink(code=code, given_url=url, author=author, **metadata)
         try:
             link.save()
         except IntegrityError:
@@ -82,6 +78,6 @@ class UserSurlListView(LoginRequiredMixin, ListView):
     context_object_name = "surls"
 
     def get_queryset(self):
-        return ShortLink.objects.filter(author=self.request.user.profile).order_by(
+        return ShortLink.objects.filter(author=self.request.user).order_by(
             "-visit_count", "-created_date"
         )
