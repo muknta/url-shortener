@@ -203,7 +203,7 @@ LOGGING = {
         },
         "django.request": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "WARNING",
             "propagate": False,
         },
         "django.security": {
@@ -218,7 +218,7 @@ LOGGING = {
         },
         "apps": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
     },
