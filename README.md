@@ -82,7 +82,8 @@ All configuration is driven by `.env` (never committed to git).
 | `SECRET_KEY` | _(required)_ | Django secret key — generate a fresh random value |
 | `DEBUG` | `True` | Set to `False` in production |
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hostnames |
-| `DATABASE_URL` | _(not set — uses SQLite)_ | PostgreSQL connection string for production |
+| `DATABASE_URL` | `postgres://urlshortener:localdev@db:5432/urlshortener` | PostgreSQL connection string; unset falls back to SQLite |
+| `TEST_REMOTE_DB` | `false` | Set to `true` to force Supabase `DATABASE_URL` (SSL required, no SQLite fallback) |
 | `EMAIL_HOST` | _(not set)_ | SMTP host for production email |
 | `EMAIL_PORT` | _(not set)_ | SMTP port (usually `587`) |
 | `EMAIL_USE_TLS` | _(not set)_ | Set to `True` for TLS |
@@ -93,24 +94,39 @@ All configuration is driven by `.env` (never committed to git).
 
 ## Production Deployment
 
+Architecture: **Render** (web service, Docker) + **Supabase** (managed PostgreSQL).
+
+### 1. Set up the database on Supabase
+
+1. Create a new project at [supabase.com](https://supabase.com).
+2. Go to **Settings → Database → Connection string**.
+3. Copy the **Session mode pooler** URI (port `5432`) — this works correctly with Django's persistent connections (`CONN_MAX_AGE`).
+   Format: `postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres`
+4. Keep this URI handy — you will set it as `DATABASE_URL` in Render.
+
+### 2. Deploy to Render
+
+1. Connect the GitHub repo in the Render dashboard and select **"Use render.yaml"**.
+2. Before the first deploy, go to **Environment** and set `DATABASE_URL` to the Supabase Session mode URI.
+3. Set `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` to your real domain.
+4. Deploy — `preDeployCommand: python manage.py migrate` runs migrations automatically on each deploy.
+5. Add a custom domain in Render → it provisions TLS automatically → point a `CNAME` (or `ALIAS`) in your DNS to the Render hostname.
+6. Run `python manage.py createsuperuser` via a Render one-off shell for admin access.
+
 ### Environment variables
 
 ```env
 SECRET_KEY=<strong-random-key>
 DEBUG=False
 ALLOWED_HOSTS=yourdomain.com
-DATABASE_URL=postgresql://user:password@host:5432/dbname
+CSRF_TRUSTED_ORIGINS=https://yourdomain.com
+DATABASE_URL=postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres
 EMAIL_HOST=smtp.yourprovider.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your@email.com
 EMAIL_HOST_PASSWORD=your-smtp-password
 ```
-
-### Switch to PostgreSQL
-
-1. Add `psycopg2-binary` (or `psycopg2`) to `requirements.txt`
-2. Update `DATABASES` in `settings.py` to read `DATABASE_URL` from the environment (use `dj-database-url` or parse manually)
 
 ### Switch email to SMTP
 
@@ -123,22 +139,6 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-```
-
-### Static files
-
-```bash
-pip install whitenoise        # or serve via nginx/CDN
-python manage.py collectstatic
-```
-
-Add `whitenoise.middleware.WhiteNoiseMiddleware` after `SecurityMiddleware` in `MIDDLEWARE`.
-
-### WSGI server
-
-```bash
-pip install gunicorn
-gunicorn url_shortener.wsgi
 ```
 
 ### Security settings

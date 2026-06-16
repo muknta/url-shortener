@@ -2,7 +2,7 @@ services:
   - type: web
     name: url-shortener
     runtime: docker
-    plan: starter
+    plan: free
     healthCheckPath: /
     preDeployCommand: python manage.py migrate
     envVars:
@@ -11,14 +11,8 @@ services:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: yourdomain.com
+        value: ridicuoslylong.link
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://yourdomain.com
+        value: https://ridicuoslylong.link
       - key: DATABASE_URL
-        fromDatabase:
-          name: url-shortener-db
-          property: connectionString
-
-databases:
-  - name: url-shortener-db
-    plan: free
+        sync: false

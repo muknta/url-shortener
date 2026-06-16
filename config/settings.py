@@ -84,12 +84,22 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-_db_config = dj_database_url.config(
-    default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
-)
-if _db_config.get("ENGINE") != "django.db.backends.sqlite3":
+_TEST_REMOTE_DB = os.environ.get("TEST_REMOTE_DB", "").lower() in ("true", "1", "yes")
+
+if _TEST_REMOTE_DB:
+    # Use the remote Supabase DATABASE_URL; SSL required, no SQLite fallback.
+    _db_config = dj_database_url.config()
     _db_config["CONN_MAX_AGE"] = 600
     _db_config["CONN_HEALTH_CHECKS"] = True
+    _db_config.setdefault("OPTIONS", {})["sslmode"] = "require"
+else:
+    _db_config = dj_database_url.config(
+        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+    )
+    if _db_config.get("ENGINE") != "django.db.backends.sqlite3":
+        _db_config["CONN_MAX_AGE"] = 600
+        _db_config["CONN_HEALTH_CHECKS"] = True
+
 DATABASES = {"default": _db_config}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

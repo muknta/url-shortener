@@ -17,12 +17,12 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"
+    env_file: .env
     environment:
       SECRET_KEY: localdev-insecure-key
       DEBUG: "False"
       SECURE_SSL_REDIRECT: "False"
       ALLOWED_HOSTS: localhost,127.0.0.1
-      DATABASE_URL: postgres://urlshortener:localdev@db:5432/urlshortener
       CSRF_TRUSTED_ORIGINS: http://localhost:8000
     ports:
       - "8000:8000"
