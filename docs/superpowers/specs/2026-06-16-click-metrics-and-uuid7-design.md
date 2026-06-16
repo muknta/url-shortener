@@ -2,8 +2,9 @@
 
 **Date:** 2026-06-16
 **Status:** Approved for planning
-**Scope:** New `apps.metrics` app capturing per-click visitor metadata, a shared
-abstract metadata model reused by `Profile`, asynchronous IP enrichment, and a
+**Scope:** New `apps.metrics` app with a shared abstract `VisitorMetadata` model
+reused by three consumers — `ShortLink` (creation context), `ClickEvent` (click
+context), and `Profile` (login-origin snapshot) — asynchronous IP enrichment, and a
 UUID7 PK migration that renames `Surl → ShortLink`.
 
 > The project is **not yet deployed**, so destructive schema changes are
@@ -13,12 +14,15 @@ UUID7 PK migration that renames `Surl → ShortLink`.
 
 ## 1. Goals
 
-1. Record one row per click on a short link, with the visitor metadata available
-   **silently** from the HTTP request.
-2. Enrich each click with approximate geo + proxy/hosting flags **asynchronously**
-   (off the redirect hot path), via a swappable third-party provider.
-3. Define the visitor-metadata fields **once** and reuse them for both the metrics
-   `ClickEvent` and a "last-seen" snapshot on `Profile`.
+1. Record one row per click on a short link, **and** record the creation context of
+   every short link, with the visitor metadata available **silently** from the HTTP
+   request. This lets us track **anonymous creators** (who have no User/Profile) by
+   embedding their connection context on the `ShortLink` row itself.
+2. Enrich every captured row with approximate geo + proxy/hosting flags
+   **asynchronously** (off the redirect hot path), via a swappable third-party provider.
+3. Define the visitor-metadata fields **once** (abstract `VisitorMetadata`) and reuse
+   them across `ShortLink` (creation), `ClickEvent` (click), and a login-origin
+   snapshot on `Profile`.
 4. Move primary keys to **UUID7** (time-ordered) for the short-link model and the
    click model, and rename `Surl → ShortLink` while keeping the short code as the
    URL-facing field.
@@ -47,9 +51,12 @@ UUID7 PK migration that renames `Surl → ShortLink`.
 | Timezone | Geo-derived (from enrichment), not the real browser timezone |
 | Viewport | Dropped (JS-only) |
 | Proxy/VPN/CDN | `is_proxy` + `is_hosting` flags from the provider (a lookup, so async) |
-| `accessed_by` | Nullable FK to **`User`** (not `Profile`); set when the clicker has a valid session (resolved before the `302`). Avoids a `.profile` lookup on the hot path |
+| Visitor metadata consumers | `ShortLink`, `ClickEvent`, and `Profile` all inherit the abstract `VisitorMetadata` |
+| Anonymous creators | Captured by embedding `VisitorMetadata` **on `ShortLink`** at creation — no User/Profile needed |
+| `author` (ShortLink) | Nullable FK to **`User`** (ownership only); null for anon. Metadata lives on the row itself |
+| `accessed_by` (ClickEvent) | Nullable FK to **`User`**; set when the clicker has a valid session (resolved before the `302`). Avoids a `.profile` lookup on the hot path |
 | Profile snapshot | Separate from clicks; updated on **login** via signal, only when the IP differs (§5.1) |
-| Field reuse | Abstract `VisitorMetadata` base **in the metrics app**; `Profile` inherits it (`users → metrics`, acyclic; FKs are string refs) |
+| Field reuse / base location | Abstract `VisitorMetadata` base **in the metrics app**; `ShortLink`, `ClickEvent`, `Profile` inherit it. `urlapp`/`users` import it; `metrics` imports nothing back (its `short_link` FK is a string ref) → acyclic |
 | UUID7 generation | `uuid6` pip package (`uuid7()` returns a stdlib `uuid.UUID` subclass) |
 | Short-link model | Rename `Surl → ShortLink`; UUID7 `id` PK; `short_url → code` (unique slug in `/<code>/`) |
 | Migration strategy | Reset `urlapp` migrations to a fresh `0001` (pre-deployment) |
@@ -63,6 +70,7 @@ apps/metrics/                      (new app — owns the visitor-metadata concep
   models.py
     VisitorMetadata     (abstract)  — shared field definitions
     ClickEvent(VisitorMetadata)     — one row per click; UUID7 PK
+  services.py           — extract_request_metadata(request), get_client_ip(request)
   enrichment/
     base.py             — GeoProvider interface + EnrichmentResult dataclass
     ipapi.py            — ip-api.com /batch implementation
@@ -74,20 +82,24 @@ apps/metrics/                      (new app — owns the visitor-metadata concep
 
 apps/users/
   models.py
-    Profile(VisitorMetadata)        — inherits the same fields as a last-seen snapshot
+    Profile(VisitorMetadata)        — login-origin snapshot (§5.1)
+  signals.py                        — user_logged_in → refresh snapshot (IP-gated)
 
 apps/urlapp/
   models.py
-    ShortLink            (renamed from Surl; UUID7 PK; `code` slug)
-  views.py, urls.py                 — redirect by `code`; write ClickEvent on click
+    ShortLink(VisitorMetadata)      — renamed from Surl; UUID7 PK; `code` slug;
+                                       creation context embedded; author → User
+  views.py, urls.py                 — redirect by `code`; write ClickEvent on click;
+                                       capture creation metadata in shorten_url
 ```
 
-**Dependency direction:** `users → metrics` (real import of the abstract base);
-`metrics → urlapp` (ClickEvent → ShortLink) and `urlapp → users` (author → Profile)
-via **string FK references only** (no module import). `ClickEvent.accessed_by` targets
-`settings.AUTH_USER_MODEL`, so `metrics` no longer FKs into `apps.users` at all. The
-only real Python import edge is `users → metrics`, which is acyclic. No `apps/common`
-app is introduced.
+**Dependency direction:** `urlapp → metrics` and `users → metrics` are the real Python
+imports (both inherit the abstract `VisitorMetadata`). `metrics → urlapp`
+(`ClickEvent.short_link`) is a **string FK reference only** — `metrics` imports nothing
+back. `author` and `accessed_by` both target `settings.AUTH_USER_MODEL`, so no app
+FKs into `apps.users`. Import graph: `{urlapp, users} → metrics`, with `metrics`
+a leaf — **acyclic**. (The base stays in `metrics` per decision; `apps/common` was
+considered and rejected.)
 
 ---
 
@@ -144,19 +156,21 @@ class Meta:
 
 The Profile snapshot is **independent of clicks**. It records the user's own
 connection origin, captured **at login** (see §5.1), and is overwritten only when the
-login IP differs from the stored one. Existing `user = OneToOneField(User, ...)` plus
-the inherited `VisitorMetadata` fields and:
-
-| Field | Type | Notes |
-|---|---|---|
-| `origin_updated_at` | `DateTimeField(null=True, blank=True)` | when the snapshot was last refreshed (renamed from the misleading "last_seen") |
+login IP differs from the stored one. It is just the existing
+`user = OneToOneField(User, ...)` plus the inherited `VisitorMetadata` fields — **no
+extra timestamp field** (`origin_updated_at` was dropped: the IP gate only needs the
+stored `ip_address`, Django's `User.last_login` already records login times, and
+`enriched_at` marks when geo was filled).
 
 The snapshot holds the **most recent login-origin** metadata (overwritten, not
-history). It is enriched by the same batch job (it shares
-`enrichment_status`/`enriched_at`). This is the reuse the original goal asked for:
-the same `VisitorMetadata` field definitions serve both `ClickEvent` and `Profile`.
+history) and is enriched by the same batch job (it shares
+`enrichment_status`/`enriched_at`).
 
-### 4.4 `ShortLink` (renamed from `Surl`, urlapp)
+### 4.4 `ShortLink(VisitorMetadata)` (renamed from `Surl`, urlapp)
+
+`ShortLink` **inherits `VisitorMetadata`** so every link records the creator's
+connection context at creation — including for **anonymous** creators, who have no
+`author`. Own fields:
 
 | Field | Type | Change |
 |---|---|---|
@@ -164,10 +178,11 @@ the same `VisitorMetadata` field definitions serve both `ClickEvent` and `Profil
 | `code` | `SlugField(max_length=20, unique=True, db_index=True)` | renamed from `short_url`; the value in `/<code>/`. Width allows future user-chosen custom codes; generation stays at 6 random chars for now (see §13) |
 | `given_url` | unchanged | |
 | `visit_count` | unchanged | |
-| `created_date` | unchanged (`auto_now_add=True`) | |
-| `author` | `FK("users.Profile", null=True, blank=True, on_delete=SET_NULL, related_name="links")` | **changed** from `User` to `Profile` for consistency with `accessed_by`; `related_name` fixed from the `"user"` smell to `"links"`. String ref (`urlapp → users`, acyclic) |
+| `created_date` | unchanged (`auto_now_add=True`) | serves as the creation event time, like `ClickEvent.clicked_at` |
+| `author` | `FK(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=SET_NULL, related_name="links")` | back to **`User`** (ownership only; symmetric with `accessed_by`); `related_name` fixed from the `"user"` smell to `"links"`. Null for anon — the creator's *context* lives in the inherited metadata fields, not this FK |
 
-`ShortLink` does **not** inherit `VisitorMetadata` — it is the link, not a visitor.
+Plus all inherited `VisitorMetadata` fields (IP/UA/locale/referrer immediate; geo/proxy
+enriched async).
 
 ---
 
@@ -209,11 +224,23 @@ refreshes the Profile's connection snapshot:
 2. If the new `ip_address` **equals** the Profile's stored `ip_address`, do nothing
    (no write, no re-enrichment — repeat logins from the same network are cheap).
 3. If it differs (or the snapshot is empty), copy the metadata onto the Profile, set
-   `origin_updated_at=now()` and `enrichment_status=PENDING`, and `save()`. The batch
-   job (§6) enriches it on its next run.
+   `enrichment_status=PENDING`, and `save()`. The batch job (§6) enriches it on its
+   next run.
 
 This fires even if the user never clicks a link, and at most once per login, only when
 the network changed.
+
+## 5.2 Capture flow (on link creation)
+
+In `urlapp.views.shorten_url`, when a `ShortLink` is created:
+
+1. Build the metadata via the same `extract_request_metadata(request)` helper.
+2. Set `author = request.user if request.user.is_authenticated else None`.
+3. Create the `ShortLink` with `code`, `given_url`, `author`, and the captured
+   `**metadata` (defaults `enrichment_status=PENDING`).
+
+So an anonymous creator still leaves a fully-formed creation context (IP/UA/locale,
+geo after enrichment) on the row, with `author` simply null. No `Profile` is involved.
 
 ---
 
@@ -252,9 +279,10 @@ class GeoProvider(Protocol):
 
 **Management command** `enrich_visitor_metadata`:
 
-1. Select `PENDING` rows across `ClickEvent` **and** `Profile` (ordered oldest-first),
-   up to the batch size (default 100, settings-tunable).
-2. Collect the **distinct** IPs (dedupe — many clicks share an IP).
+1. Select `PENDING` rows across all three consumers — `ShortLink`, `ClickEvent`, **and**
+   `Profile` — (ordered oldest-first), up to the batch size (default 100,
+   settings-tunable). A small list of the metadata-bearing models keeps this generic.
+2. Collect the **distinct** IPs (dedupe — many rows share an IP).
 3. Call `provider.enrich(distinct_ips)`.
 4. Write enriched fields back to every row whose IP resolved; set
    `enrichment_status=DONE`, `enriched_at=now()`. Unresolved/failed → `FAILED`.
@@ -288,9 +316,13 @@ free; a future key would come from `os.environ` per the security rules.
 
 IP address + geolocation is PII. Per the project's security posture:
 
-- `purge_metrics` management command deletes `ClickEvent` rows older than
-  `METRICS_RETENTION_DAYS` (and optionally nulls/anonymises IPs on retained rows).
-  Run on the same cron mechanism as enrichment.
+- `purge_metrics` management command, run on the same cron mechanism as enrichment:
+  - **`ClickEvent`** older than `METRICS_RETENTION_DAYS` → deleted (they are pure
+    event logs).
+  - **`ShortLink`** and **`Profile`** are *not* deleted (a link/profile must survive);
+    instead, on rows older than the cutoff the command **nulls/anonymises the
+    `ip_address`** (and optionally `user_agent`), keeping the link/profile and its
+    coarse geo while dropping the precise identifier.
 - No raw IPs are exposed in templates or to non-staff users; metrics are
   staff/admin-only for now.
 - This data is captured silently and legitimately (server logs equivalent), but the
@@ -304,33 +336,36 @@ IP address + geolocation is PII. Per the project's security posture:
 - `redirect_to_long(request, code)`: look up by `code`; call `record_click`.
 - `shorten_url`: generate the random 6-char value into `code`; PK is auto-set by the
   UUID7 default. Collision retry (`rand_N_symb`) checks
-  `ShortLink.objects.filter(code=...).exists()` instead of the PK. `author` is now set
-  to `request.user.profile` (not `request.user`) when authenticated, else left null.
+  `ShortLink.objects.filter(code=...).exists()` instead of the PK. `author` is set to
+  `request.user` (the `User`) when authenticated, else null. **Also capture the
+  creation metadata** via `extract_request_metadata(request)` onto the new row (§5.2).
   Note the `on_delete` change `CASCADE → SET_NULL`: deleting a user no longer deletes
   their links (they become authorless); `accessed_by` is also `SET_NULL`.
-- `UserSurlListView` (and any `author=`-filtered query) now filters by
-  `author=self.request.user.profile` instead of `request.user`; the anonymous list
-  (`author=None`) is unaffected.
+- `UserSurlListView` (and any `author=`-filtered query) filters by
+  `author=self.request.user` (a `User`); the anonymous list (`author=None`) is
+  unaffected.
 - `metrics/admin.py`: register `ClickEvent` (read-mostly) with
   `list_display`/`list_filter` on `clicked_at`, `enrichment_status`, `country_code`,
-  `is_proxy`, `is_hosting`; searchable by `code`/IP. Add the snapshot fields to the
-  `Profile` admin if one exists.
-- `config/settings.py` `INSTALLED_APPS`: add `apps.metrics` (listed before
-  `apps.users` by convention, though abstract-base import works regardless of order).
+  `is_proxy`, `is_hosting`; searchable by IP. Surface the inherited metadata + geo
+  fields on the existing `ShortLink` admin and the `Profile` admin too.
+- `config/settings.py` `INSTALLED_APPS`: add `apps.metrics` (listed **before**
+  `apps.urlapp` and `apps.users`, since both import its abstract base; imports work
+  regardless of order, but the ordering documents the dependency).
 
 ---
 
 ## 10. Migrations
 
 - **`urlapp`:** delete existing `0001`/`0002`, regenerate a fresh `0001_initial`
-  reflecting `ShortLink` (UUID7 PK + `code` + `author → Profile`). Depends on `users`
-  (Profile). Justified because the PK type change is destructive and the project is
-  undeployed.
+  reflecting `ShortLink` (UUID7 PK + `code` + inherited `VisitorMetadata` fields +
+  `author → User`). Depends on `auth` (`author → User`). Abstract inheritance copies
+  the metadata fields in, so it adds **no** migration dependency on `metrics`.
+  Justified because the PK type change is destructive and the project is undeployed.
 - **`metrics`:** new `0001_initial` for `ClickEvent`. Depends on `urlapp` (ShortLink)
   and `auth` (`accessed_by → User`) — not on `apps.users`. Acyclic.
-- **`users`:** new migration adding the inherited `VisitorMetadata` fields +
-  `origin_updated_at` to `Profile`. (Abstract inheritance copies fields, so this does
-  not add a migration dependency on `metrics`.)
+- **`users`:** new migration adding the inherited `VisitorMetadata` fields to
+  `Profile`. (Abstract inheritance copies fields, so this does not add a migration
+  dependency on `metrics`.)
 - Verify the full graph applies cleanly on a fresh DB (SQLite local + Postgres CI).
 
 ---
@@ -352,17 +387,19 @@ before adding.
 - **ShortLink:** UUID7 PK is a valid version-7 UUID; `code` is unique; collision
   retry still works; redirect resolves by `code` and increments `visit_count`;
   `created_date` stable across saves (existing guarantee preserved).
+- **Capture (creation):** anonymous create → `ShortLink` with `author is None` but
+  IP/UA/locale captured and `enrichment_status=PENDING`; authenticated create →
+  `author == request.user`. This is the anonymous-creator tracking requirement.
 - **Capture (click):** anonymous click → `ClickEvent` with `accessed_by is None`;
   authenticated click → `accessed_by == request.user` (the `User`, not a Profile).
   IP/UA/locale/referrer captured from the request; `enrichment_status` defaults to
   `PENDING`. The click does **not** write to `Profile`.
 - **Profile snapshot (login):** first login (empty snapshot) → snapshot populated,
-  `origin_updated_at` set, `enrichment_status=PENDING`; login from a **new IP** →
-  snapshot refreshed; login from the **same IP** → no write (assert row unchanged, no
-  re-enrichment).
+  `enrichment_status=PENDING`; login from a **new IP** → snapshot refreshed; login from
+  the **same IP** → no write (assert row unchanged, no re-enrichment).
 - **Enrichment:** with a stub/mocked provider, `enrich_visitor_metadata` populates
-  geo fields and flips `PENDING → DONE`; provider failure → `FAILED`; distinct-IP
-  dedupe verified; command is idempotent.
+  geo fields and flips `PENDING → DONE` across all three models; provider failure →
+  `FAILED`; distinct-IP dedupe verified; command is idempotent.
 - **Retention:** `purge_metrics` removes rows older than the cutoff and keeps newer
   ones.
 - Tests run on SQLite locally and Postgres in CI (existing convention). UUID PKs and
@@ -373,10 +410,10 @@ before adding.
 ## 13. Open considerations (flagged, not blocking)
 
 - `author` (who *created* the link) and `accessed_by` (who *clicked* it while logged
-  in) are **distinct roles** and intentionally target **different types**:
-  `author → Profile` (set on the cold creation path, where a `.profile` lookup is
-  cheap) and `accessed_by → User` (set on the hot redirect path, avoiding the extra
-  lookup). The asymmetry is deliberate, not an oversight.
+  in) are **distinct roles** but now uniformly target `User` and serve **ownership
+  only**. The *context* of each event (creation / click) lives in the inherited
+  `VisitorMetadata` fields on `ShortLink` / `ClickEvent`, not in these FKs — which is
+  what lets anonymous (FK-null) creators and clickers still be tracked.
 - ip-api free tier is non-commercial; if this ever monetises, a paid key (HTTPS +
   higher limits) is a settings swap.
 - **Future TODO — custom/vanity codes:** the `code` column is 20 chars to support
