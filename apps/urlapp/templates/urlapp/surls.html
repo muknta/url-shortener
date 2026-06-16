@@ -26,8 +26,8 @@
 {% for surl in surls %}
     <tr>
         <th>{{ forloop.counter }}</th>
-        <th><a href="{{request.scheme}}://{{request.get_host}}/{{surl.short_url}}">
-                    {{request.get_host}}/{{surl.short_url}}
+        <th><a href="{{request.scheme}}://{{request.get_host}}/{{surl.code}}">
+                    {{request.get_host}}/{{surl.code}}
                 </a></th>
         <th><a href="{{ surl.given_url }}">
                     {{ surl.given_url }}</a></th>

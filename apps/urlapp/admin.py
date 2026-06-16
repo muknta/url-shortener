@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import Surl
+from .models import ShortLink
 
-admin.site.register(Surl)
+admin.site.register(ShortLink)
