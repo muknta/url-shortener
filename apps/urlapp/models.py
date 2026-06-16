@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.core.validators import URLValidator
 from django.db import models
 from uuid6 import uuid7
 
+from apps.metrics.models import VisitorMetadata
 
-class ShortLink(models.Model):
+
+class ShortLink(VisitorMetadata):
     id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
     code = models.SlugField(max_length=20, unique=True, db_index=True)
     given_url = models.URLField(
@@ -11,10 +14,10 @@ class ShortLink(models.Model):
     )
     visit_count = models.IntegerField(default=0)
     created_date = models.DateTimeField(auto_now_add=True)
-    # String FK to avoid import cycle (urlapp → users); CASCADE→SET_NULL so deleting a user
-    # does not delete their links.
+    # Ownership only — null for anonymous creators. Creation context (IP/UA/etc.)
+    # lives in the inherited VisitorMetadata fields so anon creators are still tracked.
     author = models.ForeignKey(
-        "users.Profile",
+        settings.AUTH_USER_MODEL,
         related_name="links",
         on_delete=models.SET_NULL,
         blank=True,
