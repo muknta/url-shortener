@@ -37,6 +37,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(","
 # Application definition
 
 INSTALLED_APPS = [
+    "apps.metrics.apps.MetricsConfig",
     "apps.urlapp.apps.UrlappConfig",
     "apps.users.apps.UsersConfig",
     "crispy_forms",
@@ -151,6 +152,11 @@ if not DEBUG:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+
+METRICS_GEO_PROVIDER = "apps.metrics.enrichment.ipapi.IpApiProvider"
+METRICS_GEO_BASE_URL = "http://ip-api.com/batch"
+METRICS_ENRICH_BATCH_SIZE = 100
+METRICS_RETENTION_DAYS = int(os.environ.get("METRICS_RETENTION_DAYS", "1000"))
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("bootstrap4",)
