@@ -12,8 +12,13 @@ from apps.metrics.models import ClickEvent, EnrichmentStatus
 from apps.urlapp.models import ShortLink
 
 
-def _make_link(code="tst001"):
-    return ShortLink.objects.create(code=code, given_url="https://example.com")
+def _make_link(code="tst001", ip="1.2.3.4"):
+    return ShortLink.objects.create(
+        code=code,
+        given_url="https://example.com",
+        ip_address=ip,
+        enrichment_status=EnrichmentStatus.PENDING,
+    )
 
 
 def _make_click(link, ip="1.2.3.4", status=EnrichmentStatus.PENDING):
@@ -43,49 +48,43 @@ class EnrichmentCommandTests(TestCase):
             cmd.stderr = StringIO()
             cmd.handle(batch_size=100)
 
-    def test_pending_to_done_when_provider_returns_result(self):
-        click = _make_click(self.link, ip="1.2.3.4")
-        result = EnrichmentResult(
-            country_code="US",
-            region="California",
-            city="San Francisco",
-            timezone="America/Los_Angeles",
-            isp="Test ISP",
-            asn="AS12345",
-            is_proxy=False,
-            is_hosting=False,
-            is_mobile=False,
-        )
+    def test_shortlink_pending_to_done(self):
+        result = EnrichmentResult(country_code="US", city="New York")
         self._run_enrich({"1.2.3.4": result})
+        self.link.refresh_from_db()
+        self.assertEqual(self.link.enrichment_status, EnrichmentStatus.DONE)
+        self.assertEqual(self.link.country_code, "US")
+        self.assertIsNotNone(self.link.enriched_at)
+
+    def test_shortlink_pending_to_failed_when_no_result(self):
+        self._run_enrich({})
+        self.link.refresh_from_db()
+        self.assertEqual(self.link.enrichment_status, EnrichmentStatus.FAILED)
+
+    def test_clickevent_pending_to_done(self):
+        click = _make_click(self.link, ip="5.5.5.5")
+        result = EnrichmentResult(country_code="DE", city="Berlin")
+        self._run_enrich({"1.2.3.4": EnrichmentResult(), "5.5.5.5": result})
         click.refresh_from_db()
         self.assertEqual(click.enrichment_status, EnrichmentStatus.DONE)
-        self.assertEqual(click.country_code, "US")
-        self.assertEqual(click.city, "San Francisco")
-        self.assertIsNotNone(click.enriched_at)
-
-    def test_pending_to_failed_when_provider_has_no_result(self):
-        click = _make_click(self.link, ip="9.9.9.9")
-        self._run_enrich({})
-        click.refresh_from_db()
-        self.assertEqual(click.enrichment_status, EnrichmentStatus.FAILED)
+        self.assertEqual(click.country_code, "DE")
 
     def test_done_rows_not_reprocessed(self):
-        click = _make_click(self.link, ip="1.2.3.4", status=EnrichmentStatus.DONE)
+        self.link.enrichment_status = EnrichmentStatus.DONE
+        self.link.save(update_fields=["enrichment_status"])
         self._run_enrich({})
-        click.refresh_from_db()
-        self.assertEqual(click.enrichment_status, EnrichmentStatus.DONE)
+        self.link.refresh_from_db()
+        self.assertEqual(self.link.enrichment_status, EnrichmentStatus.DONE)
 
     def test_distinct_ip_dedupe(self):
-        _make_click(self.link, ip="3.3.3.3")
-        link2 = _make_link(code="tst002")
-        _make_click(link2, ip="3.3.3.3")
+        _make_link(code="tst002", ip="1.2.3.4")
 
         called_ips = []
-        result = EnrichmentResult(country_code="DE")
+        result = EnrichmentResult(country_code="FR")
 
         def fake_enrich(self_inner, ips):
             called_ips.extend(ips)
-            return {"3.3.3.3": result}
+            return {"1.2.3.4": result}
 
         stub = type("StubProvider", (), {"enrich": fake_enrich})()
         cmd = EnrichCommand()
@@ -99,18 +98,16 @@ class EnrichmentCommandTests(TestCase):
         ):
             cmd.handle(batch_size=100)
 
-        self.assertEqual(called_ips.count("3.3.3.3"), 1)
+        self.assertEqual(called_ips.count("1.2.3.4"), 1)
 
     def test_command_is_idempotent(self):
-        click = _make_click(self.link, ip="7.7.7.7")
-        result = EnrichmentResult(country_code="FR")
-        self._run_enrich({"7.7.7.7": result})
-        click.refresh_from_db()
-        first_enriched_at = click.enriched_at
-        # Run again — the row is DONE, so it won't be reprocessed
-        self._run_enrich({"7.7.7.7": result})
-        click.refresh_from_db()
-        self.assertEqual(click.enriched_at, first_enriched_at)
+        result = EnrichmentResult(country_code="GB")
+        self._run_enrich({"1.2.3.4": result})
+        self.link.refresh_from_db()
+        first_enriched_at = self.link.enriched_at
+        self._run_enrich({"1.2.3.4": result})
+        self.link.refresh_from_db()
+        self.assertEqual(self.link.enriched_at, first_enriched_at)
 
     def test_enriches_profile_pending_rows_too(self):
         user = User.objects.create_user("zara", password="pw12345!")
@@ -119,11 +116,10 @@ class EnrichmentCommandTests(TestCase):
         profile.enrichment_status = EnrichmentStatus.PENDING
         profile.save(update_fields=["ip_address", "enrichment_status"])
 
-        result = EnrichmentResult(country_code="GB")
-        self._run_enrich({"8.8.8.8": result})
+        self._run_enrich({"1.2.3.4": EnrichmentResult(), "8.8.8.8": EnrichmentResult(country_code="JP")})
         profile.refresh_from_db()
         self.assertEqual(profile.enrichment_status, EnrichmentStatus.DONE)
-        self.assertEqual(profile.country_code, "GB")
+        self.assertEqual(profile.country_code, "JP")
 
 
 class PurgeCommandTests(TestCase):
@@ -136,18 +132,33 @@ class PurgeCommandTests(TestCase):
             mock_settings.METRICS_RETENTION_DAYS = retention_days
             cmd.handle()
 
-    def test_purges_old_rows(self):
+    def test_purges_old_clickevent_rows(self):
         link = _make_link("purge01")
         old_click = _make_click(link, ip="1.1.1.1")
-        old_click.clicked_at = dj_tz.now() - timedelta(days=31)
-        ClickEvent.objects.filter(pk=old_click.pk).update(clicked_at=old_click.clicked_at)
-
+        ClickEvent.objects.filter(pk=old_click.pk).update(
+            clicked_at=dj_tz.now() - timedelta(days=31)
+        )
         self._run_purge(retention_days=30)
         self.assertFalse(ClickEvent.objects.filter(pk=old_click.pk).exists())
 
-    def test_keeps_recent_rows(self):
+    def test_keeps_recent_clickevent_rows(self):
         link = _make_link("purge02")
         new_click = _make_click(link, ip="2.2.2.2")
-
         self._run_purge(retention_days=30)
         self.assertTrue(ClickEvent.objects.filter(pk=new_click.pk).exists())
+
+    def test_nulls_ip_on_old_shortlink_but_keeps_row(self):
+        link = _make_link("purge03", ip="3.3.3.3")
+        ShortLink.objects.filter(pk=link.pk).update(
+            created_date=dj_tz.now() - timedelta(days=31)
+        )
+        self._run_purge(retention_days=30)
+        link.refresh_from_db()
+        self.assertTrue(ShortLink.objects.filter(pk=link.pk).exists())
+        self.assertIsNone(link.ip_address)
+
+    def test_keeps_ip_on_recent_shortlink(self):
+        link = _make_link("purge04", ip="4.4.4.4")
+        self._run_purge(retention_days=30)
+        link.refresh_from_db()
+        self.assertEqual(link.ip_address, "4.4.4.4")

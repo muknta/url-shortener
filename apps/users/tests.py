@@ -47,7 +47,6 @@ class ProfileSnapshotTests(TestCase):
         user = User.objects.create_user("carol", password="pw12345!")
         profile = user.profile
         self.assertIsNone(profile.ip_address)
-        self.assertIsNone(profile.origin_updated_at)
 
         self.client.post(
             reverse("login"),
@@ -57,7 +56,6 @@ class ProfileSnapshotTests(TestCase):
         )
         profile.refresh_from_db()
         self.assertEqual(profile.ip_address, "10.0.0.1")
-        self.assertIsNotNone(profile.origin_updated_at)
         self.assertEqual(profile.enrichment_status, EnrichmentStatus.PENDING)
 
     def test_login_from_new_ip_refreshes_snapshot(self):
@@ -78,8 +76,8 @@ class ProfileSnapshotTests(TestCase):
         user = User.objects.create_user("eve", password="pw12345!")
         profile = user.profile
         profile.ip_address = "5.5.5.5"
-        profile.origin_updated_at = None
-        profile.save(update_fields=["ip_address", "origin_updated_at"])
+        profile.enrichment_status = EnrichmentStatus.DONE
+        profile.save(update_fields=["ip_address", "enrichment_status"])
 
         self.client.post(
             reverse("login"),
@@ -87,4 +85,5 @@ class ProfileSnapshotTests(TestCase):
             HTTP_X_FORWARDED_FOR="5.5.5.5",
         )
         profile.refresh_from_db()
-        self.assertIsNone(profile.origin_updated_at)
+        # Status should remain DONE — no re-enrichment triggered
+        self.assertEqual(profile.enrichment_status, EnrichmentStatus.DONE)

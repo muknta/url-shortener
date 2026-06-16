@@ -64,18 +64,40 @@ class ShortenFlowTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertIn("error", resp.json())
 
-    def test_anonymous_has_no_author(self):
-        self.client.post(reverse("urlapp:shorten-url"), {"url": "https://example.com"})
+    def test_anonymous_has_no_author_but_captures_metadata(self):
+        self.client.post(
+            reverse("urlapp:shorten-url"),
+            {"url": "https://example.com"},
+            HTTP_X_FORWARDED_FOR="9.9.9.9",
+            HTTP_USER_AGENT="AnonBrowser/1.0",
+        )
         link = ShortLink.objects.get(given_url="https://example.com")
         self.assertIsNone(link.author)
+        self.assertEqual(link.ip_address, "9.9.9.9")
+        self.assertEqual(link.user_agent, "AnonBrowser/1.0")
+        self.assertEqual(link.enrichment_status, EnrichmentStatus.PENDING)
 
-    def test_authenticated_sets_author_to_profile(self):
-        User.objects.create_user("bob", password="pw12345!")
+    def test_authenticated_sets_author_to_user(self):
+        user = User.objects.create_user("bob", password="pw12345!")
         self.client.login(username="bob", password="pw12345!")
         self.client.post(reverse("urlapp:shorten-url"), {"url": "https://example.com"})
         link = ShortLink.objects.get(given_url="https://example.com")
-        self.assertIsNotNone(link.author)
-        self.assertEqual(link.author.user.username, "bob")
+        self.assertEqual(link.author, user)
+
+    def test_shorten_captures_creation_metadata(self):
+        self.client.post(
+            reverse("urlapp:shorten-url"),
+            {"url": "https://example.com"},
+            HTTP_X_FORWARDED_FOR="1.2.3.4",
+            HTTP_USER_AGENT="TestBrowser/2.0",
+            HTTP_ACCEPT_LANGUAGE="fr-FR",
+            HTTP_REFERER="https://search.example.com",
+        )
+        link = ShortLink.objects.get(given_url="https://example.com")
+        self.assertEqual(link.ip_address, "1.2.3.4")
+        self.assertEqual(link.user_agent, "TestBrowser/2.0")
+        self.assertEqual(link.accept_language, "fr-FR")
+        self.assertEqual(link.referrer, "https://search.example.com")
 
     def test_redirect_increments_visit_count(self):
         link = ShortLink.objects.create(code="zzz999", given_url="https://example.com")
@@ -132,11 +154,7 @@ class ClickCaptureTests(TestCase):
         profile = user.profile
         original_ip = profile.ip_address
         self.client.login(username="carol", password="pw12345!")
-        # Simulate a click with an IP different from any stored on profile
-        self.client.get(
-            f"/{self.link.code}/",
-            HTTP_X_FORWARDED_FOR="1.2.3.4",
-        )
+        self.client.get(f"/{self.link.code}/", HTTP_X_FORWARDED_FOR="1.2.3.4")
         profile.refresh_from_db()
         self.assertEqual(profile.ip_address, original_ip)
 
@@ -147,7 +165,7 @@ class ListViewTests(TestCase):
 
     def test_nobodys_list_shows_only_anonymous(self):
         ShortLink.objects.create(code="anon01", given_url="https://a.com")
-        ShortLink.objects.create(code="usr001", given_url="https://b.com", author=self.user.profile)
+        ShortLink.objects.create(code="usr001", given_url="https://b.com", author=self.user)
         resp = self.client.get(reverse("urlapp:nobodys-surls"))
         self.assertEqual(resp.status_code, 200)
         codes = [s.code for s in resp.context["surls"]]
@@ -164,10 +182,8 @@ class ListViewTests(TestCase):
 
     def test_user_list_shows_only_own_urls(self):
         other = User.objects.create_user("alice", password="pw12345!")
-        ShortLink.objects.create(
-            code="mine01", given_url="https://mine.com", author=self.user.profile
-        )
-        ShortLink.objects.create(code="hers01", given_url="https://hers.com", author=other.profile)
+        ShortLink.objects.create(code="mine01", given_url="https://mine.com", author=self.user)
+        ShortLink.objects.create(code="hers01", given_url="https://hers.com", author=other)
         self.client.login(username="bob", password="pw12345!")
         resp = self.client.get(reverse("urlapp:user-surls"))
         codes = [s.code for s in resp.context["surls"]]

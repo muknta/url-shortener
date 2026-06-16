@@ -19,7 +19,7 @@ def _load_provider():
 
 
 class Command(BaseCommand):
-    help = "Enrich pending ClickEvent and Profile rows with geo/proxy metadata via the configured provider"
+    help = "Enrich pending ShortLink, ClickEvent and Profile rows with geo/proxy metadata"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,23 +30,26 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        from apps.urlapp.models import ShortLink
         from apps.users.models import Profile
 
         batch_size = options["batch_size"] or getattr(settings, "METRICS_ENRICH_BATCH_SIZE", 100)
         provider = _load_provider()
 
+        pending_links = list(
+            ShortLink.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
+            .order_by("created_date")[:batch_size]
+        )
         pending_clicks = list(
-            ClickEvent.objects.filter(enrichment_status=EnrichmentStatus.PENDING).order_by(
-                "clicked_at"
-            )[:batch_size]
+            ClickEvent.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
+            .order_by("clicked_at")[:batch_size]
         )
         pending_profiles = list(
-            Profile.objects.filter(enrichment_status=EnrichmentStatus.PENDING).order_by(
-                "origin_updated_at"
-            )[:batch_size]
+            Profile.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
+            .order_by("id")[:batch_size]
         )
 
-        all_rows = pending_clicks + pending_profiles
+        all_rows = pending_links + pending_clicks + pending_profiles
         if not all_rows:
             self.stdout.write("No pending rows to enrich.")
             return
