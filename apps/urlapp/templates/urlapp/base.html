@@ -14,7 +14,7 @@
 		<div id="content-wrap">
 			<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top" id="navbar">
 				<div class="container-fluid">
-					<a class="navbar-brand" href="{% url 'urlapp:index' %}">UrlShortener</a>
+					<a class="navbar-brand" id="navbar-brand" href="{% url 'urlapp:index' %}"></a>
 					<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
 						data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,7 @@
 		</div>
 	</div>
 
+	<script>document.getElementById("navbar-brand").textContent = window.__siteTitle;</script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAIwxI0IzBOdxTgKqy8ZJg6sXyQ"
 		crossorigin="anonymous"></script>

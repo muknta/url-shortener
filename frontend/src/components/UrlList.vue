@@ -18,7 +18,7 @@
           <td>{{ index + 1 }}</td>
           <td><a :href="url.short_url">{{ url.short_url }}</a></td>
           <td><a :href="url.given_url">{{ url.given_url }}</a></td>
-          <td>{{ url.created_date }}</td>
+          <td>{{ formatDate(url.created_date) }}</td>
           <td>{{ url.visit_count }}</td>
         </tr>
       </tbody>
@@ -49,6 +49,13 @@ async function load() {
   } finally {
     loading.value = false;
   }
+}
+
+function formatDate(isoString) {
+  return new Date(isoString).toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 
 onMounted(load);
