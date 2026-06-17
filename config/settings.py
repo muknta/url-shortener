@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.metrics.apps.MetricsConfig",
     "apps.urlapp.apps.UrlappConfig",
     "apps.users.apps.UsersConfig",
+    "django_vite",
     "crispy_forms",
     "crispy_bootstrap4",
     "django.contrib.admin",
@@ -142,6 +143,16 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend", "dist")]
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": DEBUG,
+        "dev_server_host": "localhost",
+        "dev_server_port": 5173,
+        "manifest_path": os.path.join(BASE_DIR, "frontend", "dist", ".vite", "manifest.json"),
+    }
+}
 
 if not DEBUG:
     STORAGES = {

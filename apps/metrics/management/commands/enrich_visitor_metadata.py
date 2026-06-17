@@ -37,16 +37,19 @@ class Command(BaseCommand):
         provider = _load_provider()
 
         pending_links = list(
-            ShortLink.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
-            .order_by("created_date")[:batch_size]
+            ShortLink.objects.filter(enrichment_status=EnrichmentStatus.PENDING).order_by(
+                "created_date"
+            )[:batch_size]
         )
         pending_clicks = list(
-            ClickEvent.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
-            .order_by("clicked_at")[:batch_size]
+            ClickEvent.objects.filter(enrichment_status=EnrichmentStatus.PENDING).order_by(
+                "clicked_at"
+            )[:batch_size]
         )
         pending_profiles = list(
-            Profile.objects.filter(enrichment_status=EnrichmentStatus.PENDING)
-            .order_by("id")[:batch_size]
+            Profile.objects.filter(enrichment_status=EnrichmentStatus.PENDING).order_by("id")[
+                :batch_size
+            ]
         )
 
         all_rows = pending_links + pending_clicks + pending_profiles

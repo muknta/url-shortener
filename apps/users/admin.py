@@ -3,9 +3,21 @@ from django.contrib import admin
 from .models import Profile
 
 _VISITOR_FIELDS = [
-    "ip_address", "user_agent", "accept_language", "referrer",
-    "country_code", "region", "city", "timezone", "isp", "asn",
-    "is_proxy", "is_hosting", "is_mobile", "enrichment_status", "enriched_at",
+    "ip_address",
+    "user_agent",
+    "accept_language",
+    "referrer",
+    "country_code",
+    "region",
+    "city",
+    "timezone",
+    "isp",
+    "asn",
+    "is_proxy",
+    "is_hosting",
+    "is_mobile",
+    "enrichment_status",
+    "enriched_at",
 ]
 
 

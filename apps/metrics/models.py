@@ -61,5 +61,3 @@ class ClickEvent(VisitorMetadata):
 
     def __str__(self):
         return f"Click on {self.short_link_id} at {self.clicked_at}"
-
-

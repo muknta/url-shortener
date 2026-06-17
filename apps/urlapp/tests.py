@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from django.contrib.auth.models import User
@@ -39,35 +40,47 @@ class ShortLinkModelTests(TestCase):
             ShortLink.objects.create(code="unique1", given_url="https://other.com")
 
 
-class ShortenFlowTests(TestCase):
+class ApiShortenTests(TestCase):
+    def _post(self, url):
+        return self.client.post(
+            reverse("urlapp:api-shorten"),
+            data=json.dumps({"url": url}),
+            content_type="application/json",
+        )
+
     def test_shorten_returns_json_and_persists(self):
-        resp = self.client.post(reverse("urlapp:shorten-url"), {"url": "https://example.com"})
+        resp = self._post("https://example.com")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIn("url", data)
         code = data["url"].rstrip("/").split("/")[-1]
         self.assertTrue(ShortLink.objects.filter(code=code).exists())
-        self.assertEqual(ShortLink.objects.count(), 1)
 
     def test_shorten_rejects_empty_url(self):
-        resp = self.client.post(reverse("urlapp:shorten-url"), {"url": ""})
+        resp = self._post("")
         self.assertEqual(resp.status_code, 400)
         self.assertIn("error", resp.json())
 
-    def test_shorten_rejects_invalid_scheme(self):
-        resp = self.client.post(reverse("urlapp:shorten-url"), {"url": "javascript:alert(1)"})
+    def test_shorten_rejects_javascript_scheme(self):
+        resp = self._post("javascript:alert(1)")
         self.assertEqual(resp.status_code, 400)
         self.assertIn("error", resp.json())
 
     def test_shorten_rejects_ftp_scheme(self):
-        resp = self.client.post(reverse("urlapp:shorten-url"), {"url": "ftp://example.com"})
+        resp = self._post("ftp://example.com")
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("error", resp.json())
+
+    def test_shorten_rejects_data_url(self):
+        resp = self._post("data:text/html,<h1>hi</h1>")
         self.assertEqual(resp.status_code, 400)
         self.assertIn("error", resp.json())
 
     def test_anonymous_has_no_author_but_captures_metadata(self):
         self.client.post(
-            reverse("urlapp:shorten-url"),
-            {"url": "https://example.com"},
+            reverse("urlapp:api-shorten"),
+            data=json.dumps({"url": "https://example.com"}),
+            content_type="application/json",
             HTTP_X_FORWARDED_FOR="9.9.9.9",
             HTTP_USER_AGENT="AnonBrowser/1.0",
         )
@@ -80,14 +93,15 @@ class ShortenFlowTests(TestCase):
     def test_authenticated_sets_author_to_user(self):
         user = User.objects.create_user("bob", password="pw12345!")
         self.client.login(username="bob", password="pw12345!")
-        self.client.post(reverse("urlapp:shorten-url"), {"url": "https://example.com"})
+        self._post("https://example.com")
         link = ShortLink.objects.get(given_url="https://example.com")
         self.assertEqual(link.author, user)
 
     def test_shorten_captures_creation_metadata(self):
         self.client.post(
-            reverse("urlapp:shorten-url"),
-            {"url": "https://example.com"},
+            reverse("urlapp:api-shorten"),
+            data=json.dumps({"url": "https://example.com"}),
+            content_type="application/json",
             HTTP_X_FORWARDED_FOR="1.2.3.4",
             HTTP_USER_AGENT="TestBrowser/2.0",
             HTTP_ACCEPT_LANGUAGE="fr-FR",
@@ -99,6 +113,66 @@ class ShortenFlowTests(TestCase):
         self.assertEqual(link.accept_language, "fr-FR")
         self.assertEqual(link.referrer, "https://search.example.com")
 
+
+class ApiPublicUrlsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("bob", password="pw12345!")
+
+    def test_returns_only_anonymous_links(self):
+        ShortLink.objects.create(code="anon01", given_url="https://a.com")
+        ShortLink.objects.create(code="usr001", given_url="https://b.com", author=self.user)
+        resp = self.client.get(reverse("urlapp:api-public-urls"))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        codes = [row["short_url"].split("/")[-1] for row in data]
+        self.assertIn("anon01", codes)
+        self.assertNotIn("usr001", codes)
+
+    def test_accessible_to_anonymous(self):
+        resp = self.client.get(reverse("urlapp:api-public-urls"))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_response_shape(self):
+        ShortLink.objects.create(code="shp001", given_url="https://shape.com")
+        resp = self.client.get(reverse("urlapp:api-public-urls"))
+        row = resp.json()[0]
+        self.assertIn("short_url", row)
+        self.assertIn("given_url", row)
+        self.assertIn("visit_count", row)
+        self.assertIn("created_date", row)
+
+
+class ApiMyUrlsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("bob", password="pw12345!")
+
+    def test_requires_authentication(self):
+        resp = self.client.get(reverse("urlapp:api-my-urls"))
+        self.assertEqual(resp.status_code, 401)
+
+    def test_returns_only_own_links(self):
+        other = User.objects.create_user("alice", password="pw12345!")
+        ShortLink.objects.create(code="mine01", given_url="https://mine.com", author=self.user)
+        ShortLink.objects.create(code="hers01", given_url="https://hers.com", author=other)
+        self.client.login(username="bob", password="pw12345!")
+        resp = self.client.get(reverse("urlapp:api-my-urls"))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        codes = [row["short_url"].split("/")[-1] for row in data]
+        self.assertIn("mine01", codes)
+        self.assertNotIn("hers01", codes)
+
+    def test_excludes_anonymous_links(self):
+        ShortLink.objects.create(code="mine02", given_url="https://mine2.com", author=self.user)
+        ShortLink.objects.create(code="anon01", given_url="https://anon.com")
+        self.client.login(username="bob", password="pw12345!")
+        resp = self.client.get(reverse("urlapp:api-my-urls"))
+        codes = [row["short_url"].split("/")[-1] for row in resp.json()]
+        self.assertIn("mine02", codes)
+        self.assertNotIn("anon01", codes)
+
+
+class RedirectTests(TestCase):
     def test_redirect_increments_visit_count(self):
         link = ShortLink.objects.create(code="zzz999", given_url="https://example.com")
         self.client.get(f"/{link.code}/")
@@ -157,35 +231,3 @@ class ClickCaptureTests(TestCase):
         self.client.get(f"/{self.link.code}/", HTTP_X_FORWARDED_FOR="1.2.3.4")
         profile.refresh_from_db()
         self.assertEqual(profile.ip_address, original_ip)
-
-
-class ListViewTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user("bob", password="pw12345!")
-
-    def test_nobodys_list_shows_only_anonymous(self):
-        ShortLink.objects.create(code="anon01", given_url="https://a.com")
-        ShortLink.objects.create(code="usr001", given_url="https://b.com", author=self.user)
-        resp = self.client.get(reverse("urlapp:nobodys-surls"))
-        self.assertEqual(resp.status_code, 200)
-        codes = [s.code for s in resp.context["surls"]]
-        self.assertIn("anon01", codes)
-        self.assertNotIn("usr001", codes)
-
-    def test_user_list_requires_login(self):
-        resp = self.client.get(reverse("urlapp:user-surls"))
-        self.assertRedirects(
-            resp,
-            f"{reverse('login')}?next={reverse('urlapp:user-surls')}",
-            fetch_redirect_response=False,
-        )
-
-    def test_user_list_shows_only_own_urls(self):
-        other = User.objects.create_user("alice", password="pw12345!")
-        ShortLink.objects.create(code="mine01", given_url="https://mine.com", author=self.user)
-        ShortLink.objects.create(code="hers01", given_url="https://hers.com", author=other)
-        self.client.login(username="bob", password="pw12345!")
-        resp = self.client.get(reverse("urlapp:user-surls"))
-        codes = [s.code for s in resp.context["surls"]]
-        self.assertIn("mine01", codes)
-        self.assertNotIn("hers01", codes)

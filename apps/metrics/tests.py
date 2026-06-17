@@ -116,7 +116,9 @@ class EnrichmentCommandTests(TestCase):
         profile.enrichment_status = EnrichmentStatus.PENDING
         profile.save(update_fields=["ip_address", "enrichment_status"])
 
-        self._run_enrich({"1.2.3.4": EnrichmentResult(), "8.8.8.8": EnrichmentResult(country_code="JP")})
+        self._run_enrich(
+            {"1.2.3.4": EnrichmentResult(), "8.8.8.8": EnrichmentResult(country_code="JP")}
+        )
         profile.refresh_from_db()
         self.assertEqual(profile.enrichment_status, EnrichmentStatus.DONE)
         self.assertEqual(profile.country_code, "JP")
@@ -149,9 +151,7 @@ class PurgeCommandTests(TestCase):
 
     def test_nulls_ip_on_old_shortlink_but_keeps_row(self):
         link = _make_link("purge03", ip="3.3.3.3")
-        ShortLink.objects.filter(pk=link.pk).update(
-            created_date=dj_tz.now() - timedelta(days=31)
-        )
+        ShortLink.objects.filter(pk=link.pk).update(created_date=dj_tz.now() - timedelta(days=31))
         self._run_purge(retention_days=30)
         link.refresh_from_db()
         self.assertTrue(ShortLink.objects.filter(pk=link.pk).exists())

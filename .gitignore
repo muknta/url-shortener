@@ -125,3 +125,7 @@ dmypy.json
 
 # vim cache
 *.swp
+
+# Node / frontend
+node_modules/
+frontend/dist/

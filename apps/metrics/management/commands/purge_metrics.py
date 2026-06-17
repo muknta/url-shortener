@@ -25,12 +25,22 @@ class Command(BaseCommand):
         self.stdout.write(f"Deleted {deleted} ClickEvent(s) older than {retention_days} days.")
 
         # ShortLink and Profile must survive; null the precise identifier instead.
-        links_updated = ShortLink.objects.filter(
-            created_date__lt=cutoff,
-        ).exclude(ip_address=None).update(ip_address=None, user_agent="")
-        self.stdout.write(f"Anonymised {links_updated} ShortLink(s) older than {retention_days} days.")
+        links_updated = (
+            ShortLink.objects.filter(
+                created_date__lt=cutoff,
+            )
+            .exclude(ip_address=None)
+            .update(ip_address=None, user_agent="")
+        )
+        self.stdout.write(
+            f"Anonymised {links_updated} ShortLink(s) older than {retention_days} days."
+        )
 
-        profiles_updated = Profile.objects.filter(
-            enriched_at__lt=cutoff,
-        ).exclude(ip_address=None).update(ip_address=None, user_agent="")
+        profiles_updated = (
+            Profile.objects.filter(
+                enriched_at__lt=cutoff,
+            )
+            .exclude(ip_address=None)
+            .update(ip_address=None, user_agent="")
+        )
         self.stdout.write(f"Anonymised {profiles_updated} Profile(s) with stale geo data.")

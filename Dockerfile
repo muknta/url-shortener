@@ -1,4 +1,12 @@
-# ---- build stage ----
+# ---- frontend build stage ----
+FROM node:20-slim AS frontend-build
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# ---- python build stage ----
 FROM python:3.12-slim AS build
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
@@ -12,7 +20,8 @@ RUN useradd --create-home appuser
 WORKDIR /app
 COPY --from=build /install /usr/local
 COPY . .
-RUN SECRET_KEY=build-only-dummy-key python manage.py collectstatic --noinput
+COPY --from=frontend-build /frontend/dist ./frontend/dist
+RUN python manage.py collectstatic --noinput
 USER appuser
 EXPOSE 8000
 CMD ["gunicorn", "config.wsgi:application", \
