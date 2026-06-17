@@ -1,9 +1,9 @@
 <template>
   <div id="url-content">
     <form @submit.prevent="submit">
-      <input v-model="inputUrl" type="text" placeholder="http://example.com" />
+      <input v-model="inputUrl" type="text" placeholder="http://example.com" class="form-control" />
       <div class="buttons">
-        <button class="btn btn-outline-dark" type="submit">Shorten</button>
+        <button class="btn btn-outline-secondary" type="submit">Shorten</button>
         <button
           v-if="result"
           class="btn btn-outline-primary"

@@ -5,13 +5,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UrlShortener</title>
-  <link rel="shortcut icon" href="{% static 'urlapp/img/icon.png' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="{% static 'urlapp/main.css' %}">
+  {% include "urlapp/_head.html" %}
   {% vite_hmr_client %}
   {% vite_asset 'src/main.js' %}
 </head>
@@ -19,30 +14,32 @@
 <body>
   <div id="page-container">
     <div id="content-wrap">
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id="navbar">
-        <a class="navbar-brand" href="/">UrlShortener</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/nobodys-urls/">Nobody's urls</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/my-urls/">My urls</a>
-            </li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li class="right">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top" id="navbar">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/">UrlShortener</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="/nobodys-urls/">Nobody's urls</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/my-urls/">My urls</a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
               {% if user.is_authenticated %}
-              <a href="{% url 'profile' %}" class="btn btn-outline-warning">Profile</a>
+              <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">Profile</a>
               {% else %}
-              <a href="{% url 'login' %}" class="btn btn-outline-warning">Log in</a>
+              <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm">Log in</a>
+              <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Sign up</a>
               {% endif %}
-            </li>
-          </ul>
+              {% include "urlapp/_theme_toggle.html" %}
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -53,7 +50,7 @@
       <div id="footer">
         <div class="images">
           <a href="https://github.com/muknta/">
-            <span class="icons"><i class="fab fa-github fa-3px"></i></span>
+            <span class="icons"><i class="fab fa-github"></i></span>
           </a>
           <a href="https://www.linkedin.com/in/muknta/">
             <span class="icons"><i class="fab fa-linkedin"></i></span>
@@ -62,6 +59,10 @@
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAIwxI0IzBOdxTgKqy8ZJg6sXyQ" crossorigin="anonymous"></script>
+  <script src="{% static 'urlapp/theme.js' %}"></script>
 </body>
 
 </html>

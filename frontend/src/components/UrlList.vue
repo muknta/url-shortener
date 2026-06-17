@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div class="container-fluid py-3">
     <p v-if="loading">Loading…</p>
     <p v-else-if="errorMsg" class="text-danger">{{ errorMsg }}</p>
-    <table v-else class="table table-bordered table-striped table-sm">
-      <thead class="thead-dark">
+    <div v-else class="table-responsive">
+      <table class="table table-bordered table-striped table-sm">
+        <thead class="table-dark">
         <tr>
           <th>#</th>
           <th>Short link</th>
@@ -22,6 +23,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </template>
 

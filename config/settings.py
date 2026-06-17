@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 
 import dj_database_url
+from django.contrib.messages import constants as message_constants
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -42,7 +43,7 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "django_vite",
     "crispy_forms",
-    "crispy_bootstrap4",
+    "crispy_bootstrap5",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -169,12 +170,14 @@ METRICS_GEO_BASE_URL = "http://ip-api.com/batch"
 METRICS_ENRICH_BATCH_SIZE = 100
 METRICS_RETENTION_DAYS = int(os.environ.get("METRICS_RETENTION_DAYS", "1000"))
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
-CRISPY_ALLOWED_TEMPLATE_PACKS = ("bootstrap4",)
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ("bootstrap5",)
 
 LOGIN_REDIRECT_URL = "urlapp:index"
 LOGIN_URL = "login"
 LOGOUT_REDIRECT_URL = "urlapp:index"
+
+MESSAGE_TAGS = {message_constants.ERROR: "danger"}
 
 # Email — environment-driven SMTP vs console
 if os.environ.get("EMAIL_HOST"):
