@@ -19,8 +19,11 @@
 			</fieldset>
 			<div class="d-flex justify-content-between mb-3 buttons">
 				<button class="btn btn-primary" type="submit">Change Info</button>
-				<a id="logout" class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
+				<button type="submit" form="logout-form" class="btn btn-danger">Logout</button>
 			</div>
+		</form>
+		<form id="logout-form" method="POST" action="{% url 'logout' %}">
+			{% csrf_token %}
 		</form>
 	</div>
 {% endblock content %}

@@ -1,10 +1,11 @@
 <template>
   <div class="page-wrap">
-    <div v-if="showHint" class="hint-bar">
-      <span>Sign in to access your private URLs and delete any links you no longer need.</span>
-      <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
+    <div class="spacer-top">
+      <div class="hint-bar" :class="{ 'hint-bar--gone': !showHint }">
+        <span>Sign in to access your private URLs and delete any links you no longer need.</span>
+        <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
+      </div>
     </div>
-    <div class="spacer-top"></div>
 
     <form @submit.prevent="submit" class="shorten-card">
       <p class="card-label">paste a link, get something shorter</p>
@@ -99,11 +100,14 @@ function copy() {
 }
 
 .spacer-top {
-  flex: 3;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .spacer-bottom {
-  flex: 4;
+  flex: 2;
 }
 
 .hint-bar {
@@ -125,6 +129,11 @@ function copy() {
 
 .hint-bar:hover {
   opacity: 1;
+}
+
+.hint-bar--gone {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .hint-close {
