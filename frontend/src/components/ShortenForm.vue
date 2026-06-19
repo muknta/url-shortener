@@ -1,6 +1,6 @@
 <template>
   <div class="page-wrap">
-    <div class="hint-bar">
+    <div v-if="showHint" class="hint-bar">
       <span>Sign in to access your private URLs and delete any links you no longer need.</span>
       <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
     </div>
