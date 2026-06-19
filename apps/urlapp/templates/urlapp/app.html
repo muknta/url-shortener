@@ -1,7 +1,8 @@
 {% load static %}
 {% load django_vite %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{% get_current_language_bidi as LANGUAGE_BIDI %}{{ LANGUAGE_CODE }}"{% if LANGUAGE_BIDI %} dir="rtl"{% endif %}>
 
 <head>
   <meta charset="UTF-8">
@@ -25,19 +26,20 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/public-urls/">Public urls</a>
+                <a class="nav-link" href="/public-urls/">{% trans "nav_public_urls" %}</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/my-urls/">My urls</a>
+                <a class="nav-link" href="/my-urls/">{% trans "nav_my_urls" %}</a>
               </li>
             </ul>
             <div class="d-flex align-items-center gap-2">
               {% if user.is_authenticated %}
-              <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">Profile</a>
+              <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">{% trans "nav_profile" %}</a>
               {% else %}
-              <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm">Log in</a>
-              <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Sign up</a>
+              <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm">{% trans "nav_log_in" %}</a>
+              <a href="{% url 'register' %}" class="btn btn-primary btn-sm">{% trans "nav_sign_up" %}</a>
               {% endif %}
+              {% include "urlapp/_language_switcher.html" %}
               {% include "urlapp/_theme_toggle.html" %}
             </div>
           </div>

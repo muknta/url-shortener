@@ -9,6 +9,7 @@ services:
       npm ci --prefix frontend
       npm run build --prefix frontend
       python manage.py collectstatic --noinput
+      python3 manage.py makemessages -l en -l uk && python3 manage.py compilemessages
     startCommand: gunicorn config.wsgi:application
     preDeployCommand: python manage.py migrate
     envVars:

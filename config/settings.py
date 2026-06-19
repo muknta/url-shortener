@@ -56,6 +56,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -137,6 +138,20 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+
+LANGUAGES = [
+    ("en", "English"),
+    ("uk", "Українська"),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, "locale"),
+]
+
+LANGUAGE_COOKIE_NAME = "django_language"
+LANGUAGE_COOKIE_AGE = 31536000  # 1 year
+LANGUAGE_COOKIE_PATH = "/"
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 
 
 # Static files (CSS, JavaScript, Images)

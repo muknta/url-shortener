@@ -1,0 +1,117 @@
+# English translations
+# Copyright (C) 2026
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-20 00:00+0000\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: Navigation
+msgid "nav_public_urls"
+msgstr "Public urls"
+
+msgid "nav_my_urls"
+msgstr "My urls"
+
+msgid "nav_profile"
+msgstr "Profile"
+
+msgid "nav_log_in"
+msgstr "Log in"
+
+msgid "nav_sign_up"
+msgstr "Sign up"
+
+#: Login page
+msgid "login_title"
+msgstr "Log in"
+
+msgid "login_sign_in_button"
+msgstr "Sign in"
+
+msgid "login_forgot_password"
+msgstr "Forgot a password?"
+
+#: Logout page
+msgid "logout_title"
+msgstr "Log out"
+
+msgid "logout_message"
+msgstr "you have been logged out"
+
+msgid "logout_already"
+msgstr "already?"
+
+msgid "logout_link_text"
+msgstr "fck-dck"
+
+#: Registration page
+msgid "register_title"
+msgstr "Registration"
+
+msgid "register_heading"
+msgstr "Registration"
+
+msgid "register_button"
+msgstr "Sign up"
+
+#: Profile page
+msgid "profile_title"
+msgstr "Profile"
+
+msgid "profile_info_heading"
+msgstr "Profile Info"
+
+msgid "profile_change_button"
+msgstr "Change Info"
+
+msgid "profile_logout_button"
+msgstr "Logout"
+
+#: Password reset
+msgid "password_reset_title"
+msgstr "Reset Password"
+
+msgid "password_reset_heading"
+msgstr "Reset password"
+
+msgid "password_reset_send_button"
+msgstr "Send request"
+
+msgid "password_reset_done_title"
+msgstr "Password Reset Sent"
+
+msgid "password_reset_done_message"
+msgstr "An email has been sent with instructions to reset your password."
+
+msgid "password_reset_confirm_title"
+msgstr "Reset Password"
+
+msgid "password_reset_confirm_heading"
+msgstr "Reset password"
+
+msgid "password_reset_confirm_button"
+msgstr "Reset password"
+
+msgid "password_reset_complete_message"
+msgstr "Your password has been set."
+
+msgid "password_reset_complete_link"
+msgstr "Sign In here"
+
+#: Messages
+msgid "account_created_success"
+msgstr "Account created!"
+
+msgid "account_updated_success"
+msgstr "Your account is updated!"

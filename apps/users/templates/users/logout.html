@@ -1,14 +1,15 @@
 {% extends "urlapp/base.html" %}
+{% load i18n %}
 
 {% block title %}
-<title>Log out</title>
+<title>{% trans "logout_title" %}</title>
 {% endblock title %}
 
 {% block content %}
-	<h2>you have been logged out</h2>
-	<div class="content-section border-top pt-3">
-		<small class="text-muted">
-			already? <a href="{% url 'login' %}" class="ms-2">fck-dck</a>
-		</small>
-	</div>
+<h2>{% trans "logout_message" %}</h2>
+<div class="content-section border-top pt-3">
+	<small class="text-muted">
+		{% trans "logout_already" %} <a href="{% url 'login' %}" class="ms-2">{% trans "logout_link_text" %}</a>
+	</small>
+</div>
 {% endblock content %}

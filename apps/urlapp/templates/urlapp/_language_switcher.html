@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<div class="btn-group" role="group">
+  {% get_current_language as LANGUAGE_CODE %}
+  <button onclick="setLanguageAndReload('en')"
+    class="btn btn-sm {% if LANGUAGE_CODE == 'en' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+    🇬🇧 Eng
+  </button>
+  <button onclick="setLanguageAndReload('uk')"
+    class="btn btn-sm {% if LANGUAGE_CODE == 'uk' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+    🇺🇦 Укр
+  </button>
+</div>
+
+<script>
+  function setLanguageAndReload(lang) {
+    // Set cookie
+    const date = new Date();
+    date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000));
+    document.cookie = "django_language=" + lang + ";path=/;expires=" + date.toUTCString();
+
+    // Update localStorage for Vue
+    localStorage.setItem("lang", lang);
+
+    // Reload page
+    setTimeout(function () {
+      window.location.reload();
+    }, 50);
+  }
+</script>

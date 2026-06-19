@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils.translation import gettext_lazy as _
 
 from apps.users.forms import UserRegisterForm, UserUpdateForm
 
@@ -10,7 +11,7 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Account created!")
+            messages.success(request, _("account_created_success"))
             return redirect("login")
     else:
         form = UserRegisterForm()
@@ -23,7 +24,7 @@ def profile(request):
         u_form = UserUpdateForm(request.POST, instance=request.user)
         if u_form.is_valid():
             u_form.save()
-            messages.success(request, "Your account is updated!")
+            messages.success(request, _("account_updated_success"))
             return redirect("profile")
     else:
         u_form = UserUpdateForm(instance=request.user)

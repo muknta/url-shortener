@@ -103,14 +103,14 @@ function copy() {
 }
 
 .spacer-top {
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
 
 .spacer-bottom {
-  flex: 2;
+  flex: 5;
 }
 
 .hint-bar {

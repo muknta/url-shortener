@@ -2,9 +2,24 @@ import { createI18n } from "vue-i18n";
 import en from "./locales/en.json";
 import uk from "./locales/uk.json";
 
+// Get cookie by name
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
 // Detect browser language
 function detectLanguage() {
-  // Check localStorage first
+  // Check Django language cookie first (highest priority)
+  const djangoCookie = getCookie("django_language");
+  if (djangoCookie && ["en", "uk"].includes(djangoCookie)) {
+    localStorage.setItem("lang", djangoCookie);
+    return djangoCookie;
+  }
+
+  // Check localStorage
   const saved = localStorage.getItem("lang");
   if (saved && ["en", "uk"].includes(saved)) {
     return saved;

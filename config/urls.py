@@ -20,8 +20,10 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 from apps.users import views as user_views
+from config import views as config_views
 
 urlpatterns = [
+    path("i18n/setlang/<str:language>/", config_views.set_language_view, name="set_language"),
     path("admin/", admin.site.urls),
     path("register/", user_views.register, name="register"),
     path("profile/", user_views.profile, name="profile"),

@@ -1,8 +1,9 @@
 {% extends "urlapp/base.html" %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 {% block title %}
-<title>Log in</title>
+<title>{% trans "login_title" %}</title>
 {% endblock title %}
 
 {% block content %}
@@ -10,13 +11,13 @@
 		<form method="POST">
 			{% csrf_token %}
 			<fieldset>
-				<legend class="border-bottom mb-4">Log in</legend>
+				<legend class="border-bottom mb-4">{% trans "login_title" %}</legend>
 				{{ form|crispy }}
 			</fieldset>
 			<div class="mb-3">
-				<button class="btn btn-primary" type="submit">Sign in</button>
+				<button class="btn btn-primary" type="submit">{% trans "login_sign_in_button" %}</button>
 				<small class="text-muted ms-2">
-					<a href="{% url 'password_reset' %}">Forgot a password?</a>
+					<a href="{% url 'password_reset' %}">{% trans "login_forgot_password" %}</a>
 				</small>
 			</div>
 		</form>

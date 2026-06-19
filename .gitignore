@@ -129,3 +129,6 @@ dmypy.json
 # Node / frontend
 node_modules/
 frontend/dist/
+
+# Claude stuff
+settings.local.json

@@ -7,7 +7,7 @@
     "label": "paste a link, get something shorter",
     "urlPlaceholder": "https://example.com",
     "customCodePlaceholder": "custom code (optional)",
-    "makePublic": "Make public (listed on Public urls)",
+    "makePublic": "Make public (listed on \"Public urls\")",
     "shortenButton": "Shorten",
     "resultPlaceholder": "your short link will appear here",
     "copyButton": "Copy",

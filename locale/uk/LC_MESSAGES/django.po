@@ -1,0 +1,117 @@
+# Ukrainian translations
+# Copyright (C) 2026
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-20 00:00+0000\n"
+"PO-Revision-Date: 2026-06-20 00:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Ukrainian\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+#: Navigation
+msgid "nav_public_urls"
+msgstr "Публічні посилання"
+
+msgid "nav_my_urls"
+msgstr "Мої посилання"
+
+msgid "nav_profile"
+msgstr "Профіль"
+
+msgid "nav_log_in"
+msgstr "Увійти"
+
+msgid "nav_sign_up"
+msgstr "Зареєструватися"
+
+#: Login page
+msgid "login_title"
+msgstr "Увійти"
+
+msgid "login_sign_in_button"
+msgstr "Увійти"
+
+msgid "login_forgot_password"
+msgstr "Забули пароль?"
+
+#: Logout page
+msgid "logout_title"
+msgstr "Вихід"
+
+msgid "logout_message"
+msgstr "ви вийшли з системи"
+
+msgid "logout_already"
+msgstr "вже?"
+
+msgid "logout_link_text"
+msgstr "fck-dck"
+
+#: Registration page
+msgid "register_title"
+msgstr "Реєстрація"
+
+msgid "register_heading"
+msgstr "Реєстрація"
+
+msgid "register_button"
+msgstr "Зареєструватися"
+
+#: Profile page
+msgid "profile_title"
+msgstr "Профіль"
+
+msgid "profile_info_heading"
+msgstr "Інформація профілю"
+
+msgid "profile_change_button"
+msgstr "Змінити інформацію"
+
+msgid "profile_logout_button"
+msgstr "Вихід"
+
+#: Password reset
+msgid "password_reset_title"
+msgstr "Скидання пароля"
+
+msgid "password_reset_heading"
+msgstr "Скинути пароль"
+
+msgid "password_reset_send_button"
+msgstr "Надіслати запит"
+
+msgid "password_reset_done_title"
+msgstr "Запит на скидання пароля надіслано"
+
+msgid "password_reset_done_message"
+msgstr "Електронний лист з інструкціями по скиданню пароля надіслано."
+
+msgid "password_reset_confirm_title"
+msgstr "Скидання пароля"
+
+msgid "password_reset_confirm_heading"
+msgstr "Скинути пароль"
+
+msgid "password_reset_confirm_button"
+msgstr "Скинути пароль"
+
+msgid "password_reset_complete_message"
+msgstr "Ваш пароль встановлено."
+
+msgid "password_reset_complete_link"
+msgstr "Увійти тут"
+
+#: Messages
+msgid "account_created_success"
+msgstr "Акаунт створено!"
+
+msgid "account_updated_success"
+msgstr "Ваш акаунт оновлено!"
