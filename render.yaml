@@ -1,9 +1,15 @@
 services:
   - type: web
     name: url-shortener
-    runtime: docker
+    runtime: python
     plan: free
     healthCheckPath: /
+    buildCommand: |
+      pip install -r requirements.txt
+      npm ci --prefix frontend
+      npm run build --prefix frontend
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn config.wsgi:application
     preDeployCommand: python manage.py migrate
     envVars:
       - key: DATABASE_URL

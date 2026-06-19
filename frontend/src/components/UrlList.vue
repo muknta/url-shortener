@@ -11,6 +11,8 @@
           <th>Original link</th>
           <th>Created</th>
           <th>Visit counter</th>
+          <th v-if="props.mode === 'mine'">Status</th>
+          <th v-if="props.mode === 'mine'">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -20,6 +22,14 @@
           <td><a :href="url.given_url">{{ url.given_url }}</a></td>
           <td>{{ formatDate(url.created_date) }}</td>
           <td>{{ url.visit_count }}</td>
+          <td v-if="props.mode === 'mine'">
+            <span :class="url.is_public ? 'badge bg-success' : 'badge bg-secondary'">
+              {{ url.is_public ? 'Public' : 'Private' }}
+            </span>
+          </td>
+          <td v-if="props.mode === 'mine'">
+            <button class="btn btn-danger btn-sm" @click="confirmDelete(url)">Delete</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -29,7 +39,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import { fetchPublicUrls, fetchMyUrls } from "../api.js";
+import { fetchPublicUrls, fetchMyUrls, deleteUrl } from "../api.js";
 
 const props = defineProps({
   mode: { type: String, required: true },
@@ -48,6 +58,16 @@ async function load() {
     errorMsg.value = err.message;
   } finally {
     loading.value = false;
+  }
+}
+
+async function confirmDelete(url) {
+  if (!confirm("Delete this link? It will no longer redirect.")) return;
+  try {
+    await deleteUrl(url.id);
+    urls.value = urls.value.filter((u) => u.id !== url.id);
+  } catch (err) {
+    alert(err.message);
   }
 }
 

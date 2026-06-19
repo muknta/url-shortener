@@ -1,22 +1,41 @@
 <template>
   <div class="page-wrap">
+    <div class="spacer-top"></div>
     <div v-if="showHint" class="hint-bar">
       <span>Log in so others couldn't see your urls.</span>
       <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
     </div>
 
-    <div class="shorten-card">
+    <form @submit.prevent="submit" class="shorten-card">
       <p class="card-label">paste a link, get something shorter</p>
 
-      <form @submit.prevent="submit" class="input-row">
-        <input
-          v-model="inputUrl"
-          type="text"
-          placeholder="https://example.com"
-          class="url-input"
-        />
+      <input
+        v-model="inputUrl"
+        type="text"
+        placeholder="https://example.com"
+        class="url-input"
+      />
+
+      <div class="options-row">
+        <div class="code-wrap">
+          <span class="code-prefix">{{ host }}/</span>
+          <input
+            v-model="customCode"
+            type="text"
+            placeholder="custom code (optional)"
+            class="code-input"
+            maxlength="20"
+          />
+        </div>
+        <label class="public-toggle">
+          <input type="checkbox" v-model="isPublic" />
+          Make public (listed on Public urls)
+        </label>
+      </div>
+
+      <div class="btn-row">
         <button class="btn-shorten" type="submit">Shorten</button>
-      </form>
+      </div>
 
       <div class="result-box" :class="{ 'result-box--filled': result }">
         <a
@@ -27,28 +46,36 @@
           class="result-link"
         >{{ result }}</a>
         <span v-else class="result-placeholder">your short link will appear here</span>
-        <button v-if="result" class="btn-copy" @click="copy">Copy</button>
+        <button v-if="result" class="btn-copy" type="button" @click="copy">Copy</button>
       </div>
 
       <p v-if="error" class="error-msg">{{ error }}</p>
-    </div>
+    </form>
+    <div class="spacer-bottom"></div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { shortenUrl } from "../api.js";
 
 const inputUrl = ref("");
+const customCode = ref("");
+const isPublic = ref(false);
 const result = ref("");
 const error = ref("");
 const showHint = ref(!window.__isAuthenticated);
+
+const host = computed(() => window.location.host);
 
 async function submit() {
   error.value = "";
   result.value = "";
   try {
-    const data = await shortenUrl(inputUrl.value);
+    const data = await shortenUrl(inputUrl.value, {
+      code: customCode.value,
+      isPublic: isPublic.value,
+    });
     result.value = data.url;
   } catch (err) {
     error.value = err.message;
@@ -67,7 +94,16 @@ function copy() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 1rem 5rem;
+  min-height: calc(100dvh - 56px - 3.5rem);
+  padding: 0.5rem 1rem;
+}
+
+.spacer-top {
+  flex: 3;
+}
+
+.spacer-bottom {
+  flex: 4;
 }
 
 .hint-bar {
@@ -124,13 +160,7 @@ function copy() {
   opacity: 0.65;
 }
 
-.input-row {
-  display: flex;
-  gap: 0.6rem;
-}
-
 .url-input {
-  flex: 1;
   border: 1px solid var(--bs-border-color, #dee2e6);
   border-radius: 0.75rem;
   padding: 0.7rem 1rem;
@@ -147,24 +177,76 @@ function copy() {
 }
 
 .btn-shorten {
-  padding: 0.7rem 1.4rem;
+  width: 100%;
+  padding: 0.75rem 1.4rem;
   border-radius: 0.75rem;
   border: 1px solid var(--bs-border-color, #dee2e6);
   background: var(--bs-tertiary-bg, #f8f9fa);
   color: var(--bs-body-color, #212529);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   white-space: nowrap;
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
 .btn-shorten:hover {
   border-color: var(--bs-secondary-color, #6c757d);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--bs-body-color, #000) 8%, transparent);
+  box-shadow: 0 1px 6px color-mix(in srgb, var(--bs-body-color, #000) 10%, transparent);
 }
 
 .btn-shorten:active {
   transform: translateY(1px);
+}
+
+.options-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.code-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+.code-prefix {
+  padding: 0.55rem 0.75rem 0.55rem 1rem;
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color, #6c757d);
+  white-space: nowrap;
+  border-right: 1px solid var(--bs-border-color, #dee2e6);
+  user-select: none;
+}
+
+.code-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  color: inherit;
+}
+
+.public-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color, #6c757d);
+  cursor: pointer;
+  user-select: none;
 }
 
 .result-box {

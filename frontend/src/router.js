@@ -4,7 +4,7 @@ import UrlList from "./components/UrlList.vue";
 
 const routes = [
   { path: "/", component: ShortenForm },
-  { path: "/nobodys-urls/", component: UrlList, props: { mode: "public" } },
+  { path: "/public-urls/", component: UrlList, props: { mode: "public" } },
   { path: "/my-urls/", component: UrlList, props: { mode: "mine" } },
 ];
 

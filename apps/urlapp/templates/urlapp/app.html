@@ -17,15 +17,15 @@
       <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top" id="navbar">
         <div class="container-fluid">
           <a class="navbar-brand" id="navbar-brand" href="/"></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+          <button class="navbar-toggler" type="button" id="navbar-toggler"
+            aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/nobodys-urls/">Nobody's urls</a>
+                <a class="nav-link" href="/public-urls/">Public urls</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/my-urls/">My urls</a>
@@ -62,10 +62,24 @@
   </div>
 
   <script>document.getElementById("navbar-brand").textContent = window.__siteTitle;</script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAIwxI0IzBOdxTgKqy8ZJg6sXyQ"
-    crossorigin="anonymous"></script>
   <script src="{% static 'urlapp/theme.js' %}"></script>
+  <script>
+    (function () {
+      var toggler = document.getElementById('navbar-toggler');
+      var collapseEl = document.getElementById('navbarSupportedContent');
+      if (!toggler || !collapseEl) return;
+      collapseEl.addEventListener('show.bs.collapse', function () { toggler.setAttribute('aria-expanded', 'true'); });
+      collapseEl.addEventListener('hide.bs.collapse', function () { toggler.setAttribute('aria-expanded', 'false'); });
+      toggler.addEventListener('click', function () {
+        if (window.bootstrap && bootstrap.Collapse) {
+          bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false }).toggle();
+        } else {
+          var open = collapseEl.classList.toggle('show');
+          toggler.setAttribute('aria-expanded', open.toString());
+        }
+      });
+    })();
+  </script>
 </body>
 
 </html>

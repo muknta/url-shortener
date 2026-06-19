@@ -22,11 +22,15 @@ async function apiFetch(path, options = {}) {
   return response.json();
 }
 
-export function shortenUrl(url) {
+export function shortenUrl(url, { code = "", isPublic = false } = {}) {
   return apiFetch("/api/shorten/", {
     method: "POST",
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, code, is_public: isPublic }),
   });
+}
+
+export function deleteUrl(id) {
+  return apiFetch(`/api/urls/${id}/delete/`, { method: "POST" });
 }
 
 export function fetchPublicUrls() {
