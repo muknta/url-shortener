@@ -1,18 +1,18 @@
 <template>
   <div class="container-fluid py-3">
-    <p v-if="loading">Loading…</p>
-    <p v-else-if="errorMsg" class="text-danger">{{ errorMsg }}</p>
+    <p v-if="loading">{{ $t('urlList.loading') }}</p>
+    <p v-else-if="errorMsg" class="text-danger">{{ $t('urlList.error') }}</p>
     <div v-else class="table-responsive">
       <table class="table table-bordered table-striped table-sm">
         <thead class="table-dark">
         <tr>
-          <th>#</th>
-          <th>Short link</th>
-          <th>Original link</th>
-          <th>Created</th>
-          <th>Visit counter</th>
-          <th v-if="props.mode === 'mine'">Status</th>
-          <th v-if="props.mode === 'mine'">Actions</th>
+          <th>{{ $t('urlList.table.number') }}</th>
+          <th>{{ $t('urlList.table.shortLink') }}</th>
+          <th>{{ $t('urlList.table.originalLink') }}</th>
+          <th>{{ $t('urlList.table.created') }}</th>
+          <th>{{ $t('urlList.table.visitCounter') }}</th>
+          <th v-if="props.mode === 'mine'">{{ $t('urlList.table.status') }}</th>
+          <th v-if="props.mode === 'mine'">{{ $t('urlList.table.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -20,15 +20,15 @@
           <td>{{ index + 1 }}</td>
           <td><a :href="url.short_url">{{ url.short_url }}</a></td>
           <td><a :href="url.given_url">{{ url.given_url }}</a></td>
-          <td>{{ formatDate(url.created_date) }}</td>
+          <td>{{ $d(new Date(url.created_date), 'short') }}</td>
           <td>{{ url.visit_count }}</td>
           <td v-if="props.mode === 'mine'">
             <span :class="url.is_public ? 'badge bg-success' : 'badge bg-secondary'">
-              {{ url.is_public ? 'Public' : 'Private' }}
+              {{ url.is_public ? $t('urlList.table.public') : $t('urlList.table.private') }}
             </span>
           </td>
           <td v-if="props.mode === 'mine'">
-            <button class="btn btn-danger btn-sm" @click="confirmDelete(url)">Delete</button>
+            <button class="btn btn-danger btn-sm" @click="confirmDelete(url)">{{ $t('urlList.deleteButton') }}</button>
           </td>
         </tr>
       </tbody>
@@ -39,11 +39,14 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { fetchPublicUrls, fetchMyUrls, deleteUrl } from "../api.js";
 
 const props = defineProps({
   mode: { type: String, required: true },
 });
+
+const { t } = useI18n();
 
 const urls = ref([]);
 const loading = ref(true);
@@ -62,20 +65,13 @@ async function load() {
 }
 
 async function confirmDelete(url) {
-  if (!confirm("Delete this link? It will no longer redirect.")) return;
+  if (!confirm(t('urlList.deleteConfirm'))) return;
   try {
     await deleteUrl(url.id);
     urls.value = urls.value.filter((u) => u.id !== url.id);
   } catch (err) {
     alert(err.message);
   }
-}
-
-function formatDate(isoString) {
-  return new Date(isoString).toLocaleString(undefined, {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
 }
 
 onMounted(load);
