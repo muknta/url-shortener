@@ -2,18 +2,18 @@
   <div class="page-wrap">
     <div class="spacer-top">
       <div class="hint-bar" :class="{ 'hint-bar--gone': !showHint }">
-        <span>Sign in to access your private URLs and delete any links you no longer need.</span>
+        <span>{{ $t('shortenForm.signInHint') }}</span>
         <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
       </div>
     </div>
 
     <form @submit.prevent="submit" class="shorten-card">
-      <p class="card-label">paste a link, get something shorter</p>
+      <p class="card-label">{{ $t('shortenForm.label') }}</p>
 
       <input
         v-model="inputUrl"
         type="text"
-        placeholder="https://example.com"
+        :placeholder="$t('shortenForm.urlPlaceholder')"
         class="url-input"
       />
 
@@ -23,19 +23,19 @@
           <input
             v-model="customCode"
             type="text"
-            placeholder="custom code (optional)"
+            :placeholder="$t('shortenForm.customCodePlaceholder')"
             class="code-input"
             maxlength="20"
           />
         </div>
         <label class="public-toggle">
           <input type="checkbox" v-model="isPublic" />
-          Make public (listed on Public urls)
+          {{ $t('shortenForm.makePublic') }}
         </label>
       </div>
 
       <div class="btn-row">
-        <button class="btn-shorten" type="submit">Shorten</button>
+        <button class="btn-shorten" type="submit">{{ $t('shortenForm.shortenButton') }}</button>
       </div>
 
       <div class="result-box" :class="{ 'result-box--filled': result }">
@@ -46,8 +46,8 @@
           rel="noopener noreferrer"
           class="result-link"
         >{{ result }}</a>
-        <span v-else class="result-placeholder">your short link will appear here</span>
-        <button v-if="result" class="btn-copy" type="button" @click="copy">Copy</button>
+        <span v-else class="result-placeholder">{{ $t('shortenForm.resultPlaceholder') }}</span>
+        <button v-if="result" class="btn-copy" type="button" @click="copy">{{ $t('shortenForm.copyButton') }}</button>
       </div>
 
       <p v-if="error" class="error-msg">{{ error }}</p>
@@ -58,7 +58,10 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { shortenUrl } from "../api.js";
+
+const { t } = useI18n();
 
 const inputUrl = ref("");
 const customCode = ref("");
