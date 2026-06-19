@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-20 00:00+0000\n"
+"POT-Creation-Date: 2026-06-19 22:21+0000\n"
 "PO-Revision-Date: 2026-06-20 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Ukrainian\n"
@@ -14,104 +14,137 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: Navigation
+#: apps/urlapp/templates/urlapp/app.html:29
+#: apps/urlapp/templates/urlapp/base.html:28
 msgid "nav_public_urls"
 msgstr "Публічні посилання"
 
+#: apps/urlapp/templates/urlapp/app.html:32
+#: apps/urlapp/templates/urlapp/base.html:31
 msgid "nav_my_urls"
 msgstr "Мої посилання"
 
+#: apps/urlapp/templates/urlapp/app.html:37
+#: apps/urlapp/templates/urlapp/base.html:36
 msgid "nav_profile"
 msgstr "Профіль"
 
+#: apps/urlapp/templates/urlapp/app.html:39
+#: apps/urlapp/templates/urlapp/base.html:38
 msgid "nav_log_in"
 msgstr "Увійти"
 
+#: apps/urlapp/templates/urlapp/app.html:40
+#: apps/urlapp/templates/urlapp/base.html:39
 msgid "nav_sign_up"
 msgstr "Зареєструватися"
 
-#: Login page
+#: apps/users/templates/users/login.html:6
+#: apps/users/templates/users/login.html:14
 msgid "login_title"
 msgstr "Увійти"
 
+#: apps/users/templates/users/login.html:18
 msgid "login_sign_in_button"
 msgstr "Увійти"
 
+#: apps/users/templates/users/login.html:20
 msgid "login_forgot_password"
 msgstr "Забули пароль?"
 
-#: Logout page
+#: apps/users/templates/users/logout.html:5
 msgid "logout_title"
 msgstr "Вихід"
 
+#: apps/users/templates/users/logout.html:9
 msgid "logout_message"
 msgstr "ви вийшли з системи"
 
+#: apps/users/templates/users/logout.html:12
 msgid "logout_already"
 msgstr "вже?"
 
+#: apps/users/templates/users/logout.html:12
 msgid "logout_link_text"
 msgstr "fck-dck"
 
-#: Registration page
-msgid "register_title"
-msgstr "Реєстрація"
-
-msgid "register_heading"
-msgstr "Реєстрація"
-
-msgid "register_button"
-msgstr "Зареєструватися"
-
-#: Profile page
-msgid "profile_title"
-msgstr "Профіль"
-
-msgid "profile_info_heading"
-msgstr "Інформація профілю"
-
-msgid "profile_change_button"
-msgstr "Змінити інформацію"
-
-msgid "profile_logout_button"
-msgstr "Вихід"
-
-#: Password reset
+#: apps/users/templates/users/password_reset.html:6
 msgid "password_reset_title"
 msgstr "Скидання пароля"
 
+#: apps/users/templates/users/password_reset.html:14
 msgid "password_reset_heading"
 msgstr "Скинути пароль"
 
+#: apps/users/templates/users/password_reset.html:18
 msgid "password_reset_send_button"
 msgstr "Надіслати запит"
 
-msgid "password_reset_done_title"
-msgstr "Запит на скидання пароля надіслано"
-
-msgid "password_reset_done_message"
-msgstr "Електронний лист з інструкціями по скиданню пароля надіслано."
-
-msgid "password_reset_confirm_title"
-msgstr "Скидання пароля"
-
-msgid "password_reset_confirm_heading"
-msgstr "Скинути пароль"
-
-msgid "password_reset_confirm_button"
-msgstr "Скинути пароль"
-
+#: apps/users/templates/users/password_reset_complete.html:7
 msgid "password_reset_complete_message"
 msgstr "Ваш пароль встановлено."
 
+#: apps/users/templates/users/password_reset_complete.html:9
 msgid "password_reset_complete_link"
 msgstr "Увійти тут"
 
-#: Messages
+#: apps/users/templates/users/password_reset_confirm.html:6
+msgid "password_reset_confirm_title"
+msgstr "Скидання пароля"
+
+#: apps/users/templates/users/password_reset_confirm.html:14
+msgid "password_reset_confirm_heading"
+msgstr "Скинути пароль"
+
+#: apps/users/templates/users/password_reset_confirm.html:18
+msgid "password_reset_confirm_button"
+msgstr "Скинути пароль"
+
+#: apps/users/templates/users/password_reset_done.html:4
+msgid "password_reset_done_title"
+msgstr "Запит на скидання пароля надіслано"
+
+#: apps/users/templates/users/password_reset_done.html:9
+msgid "password_reset_done_message"
+msgstr "Електронний лист з інструкціями по скиданню пароля надіслано."
+
+#: apps/users/templates/users/profile.html:6
+msgid "profile_title"
+msgstr "Профіль"
+
+#: apps/users/templates/users/profile.html:18
+msgid "profile_info_heading"
+msgstr "Інформація профілю"
+
+#: apps/users/templates/users/profile.html:22
+msgid "profile_change_button"
+msgstr "Змінити інформацію"
+
+#: apps/users/templates/users/profile.html:23
+msgid "profile_logout_button"
+msgstr "Вихід"
+
+#: apps/users/templates/users/register.html:6
+msgid "register_title"
+msgstr "Реєстрація"
+
+#: apps/users/templates/users/register.html:14
+msgid "register_heading"
+msgstr "Реєстрація"
+
+#: apps/users/templates/users/register.html:18
+msgid "register_button"
+msgstr "Зареєструватися"
+
+#: apps/users/views.py:14
 msgid "account_created_success"
 msgstr "Акаунт створено!"
 
+#: apps/users/views.py:27
 msgid "account_updated_success"
 msgstr "Ваш акаунт оновлено!"
