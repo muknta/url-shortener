@@ -1,10 +1,10 @@
 <template>
   <div class="page-wrap">
-    <div class="spacer-top"></div>
-    <div v-if="showHint" class="hint-bar">
-      <span>Log in so others couldn't see your urls.</span>
+    <div class="hint-bar">
+      <span>Sign in to access your private URLs and delete any links you no longer need.</span>
       <button class="hint-close" @click="showHint = false" aria-label="Dismiss">×</button>
     </div>
+    <div class="spacer-top"></div>
 
     <form @submit.prevent="submit" class="shorten-card">
       <p class="card-label">paste a link, get something shorter</p>
