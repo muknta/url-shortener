@@ -1,0 +1,34 @@
+{
+  "common": {
+    "language": "English"
+  },
+  "shortenForm": {
+    "signInHint": "Sign in to access your private URLs and delete any links you no longer need.",
+    "label": "paste a link, get something shorter",
+    "urlPlaceholder": "https://example.com",
+    "customCodePlaceholder": "custom code (optional)",
+    "makePublic": "Make public (listed on Public urls)",
+    "shortenButton": "Shorten",
+    "resultPlaceholder": "your short link will appear here",
+    "copyButton": "Copy",
+    "errorPrefix": ""
+  },
+  "urlList": {
+    "loading": "Loading…",
+    "error": "Error loading URLs",
+    "table": {
+      "number": "#",
+      "shortLink": "Short link",
+      "originalLink": "Original link",
+      "created": "Created",
+      "visitCounter": "Visit counter",
+      "status": "Status",
+      "actions": "Actions",
+      "public": "Public",
+      "private": "Private"
+    },
+    "deleteButton": "Delete",
+    "deleteConfirm": "Delete this link? It will no longer redirect.",
+    "deleteSuccess": "Link deleted successfully"
+  }
+}
